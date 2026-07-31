@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, queryOne } from "@/lib/db";
+import { requireApiAuth } from "@/lib/auth";
 
 function toSlug(name: string) {
   return name
@@ -11,6 +12,9 @@ function toSlug(name: string) {
 }
 
 export async function GET() {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   try {
     const services = await query(
       "SELECT * FROM services WHERE is_active = 1 ORDER BY created_at DESC"
@@ -23,6 +27,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { name, category, description, startingPrice, duration, featured } = body;
@@ -47,6 +54,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   try {
     const { id } = await request.json();
     await query("UPDATE services SET is_active = 0 WHERE id = ?", [id]);

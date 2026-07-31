@@ -1,0 +1,72 @@
+# ============================================================
+#  Solange's Hair Braiding — pile complète (site + base MySQL)
+#
+#    cp .env.docker.example .env
+#    docker compose up -d --build
+#
+#  Le site écoute sur http://localhost:3000
+#  Au tout premier démarrage, MySQL importe automatiquement
+#  mysql-schema.sql puis mysql-seed.sql.
+# ============================================================
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?définir DB_ROOT_PASSWORD dans .env}
+      MYSQL_DATABASE:      ${DB_NAME:-solange_hair}
+      MYSQL_USER:          ${DB_USER:?définir DB_USER dans .env}
+      MYSQL_PASSWORD:      ${DB_PASSWORD:?définir DB_PASSWORD dans .env}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db_data:/var/lib/mysql
+      # Exécutés une seule fois, par ordre alphabétique, à la création du volume
+      - ./mysql-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./mysql-seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      # Base — le nom d'hôte est celui du service ci-dessus
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME:     ${DB_NAME:-solange_hair}
+      DB_USER:     ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # Espace admin
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?définir ADMIN_PASSWORD dans .env}
+      JWT_SECRET:     ${JWT_SECRET:?définir JWT_SECRET dans .env}
+      # Cloudinary
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY:    ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      # Recherche d'images (optionnel)
+      PEXELS_API_KEY:      ${PEXELS_API_KEY:-}
+      PIXABAY_API_KEY:     ${PIXABAY_API_KEY:-}
+      UNSPLASH_ACCESS_KEY: ${UNSPLASH_ACCESS_KEY:-}
+      GOOGLE_API_KEY:      ${GOOGLE_API_KEY:-}
+      GOOGLE_CX_ID:        ${GOOGLE_CX_ID:-}
+      # Emails
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM:     ${EMAIL_FROM:-}
+
+volumes:
+  db_data:

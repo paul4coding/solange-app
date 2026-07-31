@@ -1,12 +1,40 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+/**
+ * Le client Resend est créé à la demande, jamais au chargement du module :
+ * son constructeur lève une exception quand la clé est absente, ce qui ferait
+ * échouer le build (et le démarrage) sur un environnement sans RESEND_API_KEY.
+ * Sans clé configurée, l'envoi est simplement ignoré — le site reste fonctionnel
+ * et les réservations comme les messages restent enregistrés en base.
+ */
+let _resend: Resend | null = null;
+
+function getResend(): Resend | null {
+  const key = process.env.RESEND_API_KEY?.trim();
+  if (!key) return null;
+  if (!_resend) _resend = new Resend(key);
+  return _resend;
+}
+
+function noKey(kind: string) {
+  console.warn(`[email] RESEND_API_KEY absente — envoi « ${kind} » ignoré.`);
+  return null;
+}
 
 const SALON_NAME  = "Solange's Hair Braiding LLC";
 const SALON_EMAIL = "solangesbraidingsalon@gmail.com";
 const SALON_PHONE = "443.320.1312";
 const SALON_ADDR  = "550 Crain Highway N, Glen Burnie, MD 21061";
 const FROM_EMAIL  = process.env.EMAIL_FROM || "Solange's Hair Braiding <onboarding@resend.dev>";
+
+/** Neutralise le HTML dans les valeurs saisies par le visiteur avant insertion dans le template. */
+function esc(v: string | undefined | null) {
+  return String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function fmtDate(d: string) {
   if (!d) return d;
@@ -164,7 +192,10 @@ export async function sendBookingConfirmationToClient(data: {
 </html>
 `;
 
-  return resend.emails.send({
+  const client = getResend();
+  if (!client) return noKey("confirmation cliente");
+
+  return client.emails.send({
     from:    FROM_EMAIL,
     to:      clientEmail,
     subject: `✅ Appointment Confirmed — ${service} on ${prettyDate}`,
@@ -296,10 +327,130 @@ export async function sendBookingAlertToSalon(data: {
 </html>
 `;
 
-  return resend.emails.send({
+  const client = getResend();
+  if (!client) return noKey("alerte réservation");
+
+  return client.emails.send({
     from:    FROM_EMAIL,
     to:      SALON_EMAIL,
     subject: `🆕 New Booking: ${clientName} — ${service} on ${prettyDate} at ${time}`,
+    html,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// EMAIL 3 — Contact form alert to the SALON
+// ─────────────────────────────────────────────────────────────
+export async function sendContactAlertToSalon(data: {
+  name:     string;
+  email:    string;
+  phone?:   string;
+  service?: string;
+  message:  string;
+}) {
+  const name    = esc(data.name);
+  const email   = esc(data.email);
+  const phone   = esc(data.phone);
+  const service = esc(data.service);
+  const message = esc(data.message).replace(/\n/g, "<br/>");
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background:#8B1A1A;padding:24px 32px;">
+              <p style="margin:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);">Contact Form</p>
+              <h2 style="margin:6px 0 0;font-size:20px;color:#fff;font-weight:700;">✉️ New Message</h2>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="padding:28px 32px;">
+
+              <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8B1A1A;">Sender</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#F9F9F9;border-radius:8px;border:1px solid #E5E5E5;margin-bottom:20px;">
+                <tr>
+                  <td style="padding:12px 16px;border-bottom:1px solid #E5E5E5;font-size:13px;">
+                    <strong>Name:</strong> ${name}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;${phone || service ? "border-bottom:1px solid #E5E5E5;" : ""}font-size:13px;">
+                    <strong>Email:</strong> <a href="mailto:${email}" style="color:#8B1A1A;">${email}</a>
+                  </td>
+                </tr>
+                ${phone ? `
+                <tr>
+                  <td style="padding:12px 16px;${service ? "border-bottom:1px solid #E5E5E5;" : ""}font-size:13px;">
+                    <strong>Phone:</strong> <a href="tel:${phone}" style="color:#8B1A1A;">${phone}</a>
+                  </td>
+                </tr>` : ""}
+                ${service ? `
+                <tr>
+                  <td style="padding:12px 16px;font-size:13px;">
+                    <strong>Service:</strong> ${service}
+                  </td>
+                </tr>` : ""}
+              </table>
+
+              <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8B1A1A;">Message</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#F9F9F9;border-radius:8px;border:1px solid #E5E5E5;margin-bottom:20px;">
+                <tr>
+                  <td style="padding:16px;font-size:13px;line-height:1.7;color:#333;">${message}</td>
+                </tr>
+              </table>
+
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-right:8px;" width="50%">
+                    <a href="mailto:${email}" style="display:block;background:#8B1A1A;color:#fff;text-decoration:none;text-align:center;font-size:13px;font-weight:700;padding:12px;border-radius:8px;">
+                      ✉️ Reply by Email
+                    </a>
+                  </td>
+                  ${phone ? `
+                  <td style="padding-left:8px;" width="50%">
+                    <a href="tel:${phone}" style="display:block;background:#25D366;color:#fff;text-decoration:none;text-align:center;font-size:13px;font-weight:700;padding:12px;border-radius:8px;">
+                      📞 Call Back
+                    </a>
+                  </td>` : ""}
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="padding:16px 32px;background:#F5F5F5;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#999;">Also saved in your admin panel under “Messages”.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+  const client = getResend();
+  if (!client) return noKey("alerte message de contact");
+
+  return client.emails.send({
+    from:     FROM_EMAIL,
+    to:       SALON_EMAIL,
+    replyTo:  data.email,
+    subject:  `✉️ New Message from ${data.name}${data.service ? ` — ${data.service}` : ""}`,
     html,
   });
 }

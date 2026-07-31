@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Produit .next/standalone : un serveur autonome avec ses seules dépendances
+  // utiles, ce qui permet une image Docker sans node_modules complet.
+  output: "standalone",
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.pinimg.com" },

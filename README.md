@@ -6,7 +6,42 @@ Site web professionnel pour Solange's Hair Braiding LLC, Glen Burnie MD.
 
 ---
 
-## Déploiement — 4 étapes
+## Déploiement A — Docker (recommandé)
+
+Tout est fourni : le site et sa base MySQL démarrent ensemble, et la base
+est créée et remplie automatiquement au premier lancement.
+
+**Prérequis :** Docker et Docker Compose.
+
+```bash
+cp .env.docker.example .env
+```
+
+Ouvrir `.env` et remplir au minimum `DB_ROOT_PASSWORD`, `DB_USER`,
+`DB_PASSWORD`, `ADMIN_PASSWORD` et `JWT_SECRET`. Puis :
+
+```bash
+docker compose up -d --build
+```
+
+Le site est sur http://localhost:3000 et l'admin sur http://localhost:3000/admin.
+
+| Commande | Effet |
+|----------|-------|
+| `docker compose logs -f app` | Suivre les logs du site |
+| `docker compose ps` | État des conteneurs |
+| `docker compose restart app` | Redémarrer le site |
+| `docker compose down` | Arrêter (les données sont conservées) |
+| `docker compose down -v` | Arrêter **et effacer la base** |
+
+> Le schéma et les données ne sont importés qu'à la **création** du volume.
+> Pour repartir de zéro : `docker compose down -v && docker compose up -d`.
+
+Pour changer le port : mettre `APP_PORT=8080` dans `.env`.
+
+---
+
+## Déploiement B — installation classique, 4 étapes
 
 ### Prérequis
 - Node.js 20+
@@ -68,6 +103,22 @@ npm run dev   # nécessite MySQL local + .env.local configuré
 | Commande | Description |
 |----------|-------------|
 | `npm run export-seed` | Exporter les images MySQL vers mysql-seed.sql |
+| `npm run test` | Suite de tests fonctionnels (site + admin + API + base) |
+
+### Tests
+
+`npm run test` lance `scripts/smoke-test.mjs` contre un serveur déjà démarré :
+pages publiques, protection de l'admin, authentification des routes API,
+intégrité de la base, cycle de vie des réservations et des messages.
+
+```bash
+npm run test                          # cible http://localhost:3000
+npm run test -- http://localhost:8080 # autre adresse
+```
+
+Les données créées pendant les tests sont préfixées `ZZTEST` et supprimées à la
+fin. **Aucun email n'est envoyé** : la suite passe par les routes API et la base,
+jamais par les formulaires publics qui déclenchent Resend.
 
 ---
 
@@ -85,5 +136,10 @@ lib/
 middleware.ts      → Protection automatique /admin/*
 mysql-schema.sql   → Structure de la base
 mysql-seed.sql     → Données initiales (services + images + reviews)
-.env.superviseur   → Template à renommer en .env.local
+.env.superviseur   → Template à renommer en .env.local (installation classique)
+
+Dockerfile            → Image de production (build multi-étapes, non-root)
+docker-compose.yml    → Pile complète : site + MySQL
+.env.docker.example   → Template à copier en .env (Docker)
+scripts/smoke-test.mjs → Suite de tests fonctionnels
 ```

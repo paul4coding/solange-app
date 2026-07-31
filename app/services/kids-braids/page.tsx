@@ -51,3 +51,7 @@ export default function KidsBraidsPage() {
     />
   );
 }
+
+// Les photos viennent de la base : rendu à la demande pour que les ajouts
+// faits dans l'admin apparaissent immédiatement.
+export const dynamic = "force-dynamic";

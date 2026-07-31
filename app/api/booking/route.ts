@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, queryOne } from "@/lib/db";
+import { requireApiAuth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +28,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   try {
     const bookings = await query(
       "SELECT * FROM bookings ORDER BY date ASC, time ASC"

@@ -19,3 +19,8 @@ export default function HomePage() {
     </>
   );
 }
+
+// Hero, SignatureServices et HomeGallery lisent la base : rendu à la demande
+// pour que les photos ajoutées dans l'admin apparaissent, et pour que le build
+// ne fige pas une page vide quand la base n'est pas joignable (cas de Docker).
+export const dynamic = "force-dynamic";

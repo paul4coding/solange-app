@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 
 const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "dev-secret-please-change-in-production-32chars"
@@ -45,4 +46,17 @@ export async function requireAuth() {
   const session = await getSession();
   if (!session) redirect("/admin/login");
   return session;
+}
+
+/**
+ * Guard for route handlers. The middleware only covers /admin/*, so API routes
+ * must check the session themselves.
+ * Returns a 401 response when unauthenticated, or null when the caller may proceed.
+ */
+export async function requireApiAuth(): Promise<NextResponse | null> {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+  return null;
 }

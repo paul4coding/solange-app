@@ -1,8 +1,8 @@
 import Link from "next/link";
 import {
   Images, FolderOpen, Scissors, Plus,
-  Layers, Star, LayoutGrid, ExternalLink,
-  ChevronRight, Upload,
+  Layers, Star, ExternalLink,
+  ChevronRight, Upload, CalendarDays, Inbox,
 } from "lucide-react";
 import { SERVICES } from "@/lib/constants";
 import { query } from "@/lib/db";
@@ -23,6 +23,8 @@ type CountRow = { total: number };
 export default async function AdminDashboard() {
   let totalImages = 0;
   let featuredImages = 0;
+  let pendingBookings = 0;
+  let unreadMessages = 0;
 
   try {
     const [totRow] = await query<CountRow>(
@@ -31,20 +33,30 @@ export default async function AdminDashboard() {
     const [featRow] = await query<CountRow>(
       "SELECT COUNT(*) as total FROM images WHERE is_active = 1 AND is_featured = 1"
     );
-    totalImages    = totRow?.total  ?? 0;
-    featuredImages = featRow?.total ?? 0;
+    const [bookRow] = await query<CountRow>(
+      "SELECT COUNT(*) as total FROM bookings WHERE status = 'pending'"
+    );
+    const [msgRow] = await query<CountRow>(
+      "SELECT COUNT(*) as total FROM contact_messages WHERE is_read = 0"
+    );
+    totalImages     = totRow?.total  ?? 0;
+    featuredImages  = featRow?.total ?? 0;
+    pendingBookings = bookRow?.total ?? 0;
+    unreadMessages  = msgRow?.total  ?? 0;
   } catch {
     // DB not configured yet — show dashes
   }
 
   const STATS = [
-    { label: "Services actifs",     value: SERVICES.length,  icon: <Scissors size={18} />,    color: "#8B1A1A", href: "/admin/services" },
-    { label: "Images en catalogue", value: totalImages,      icon: <Images size={18} />,      color: "#C9A96E", href: "/admin/catalog" },
-    { label: "Images en vedette",   value: featuredImages,   icon: <Star size={18} />,        color: "#1A6B3A", href: "/admin/catalog" },
-    { label: "Pages de services",   value: SERVICES.length,  icon: <LayoutGrid size={18} />,  color: "#1A3A6B", href: "/admin/services" },
+    { label: "Réservations en attente", value: pendingBookings, icon: <CalendarDays size={18} />, color: "#8B1A1A", href: "/admin/bookings?status=pending" },
+    { label: "Messages non lus",        value: unreadMessages,  icon: <Inbox size={18} />,        color: "#1A3A6B", href: "/admin/messages" },
+    { label: "Images en catalogue",     value: totalImages,     icon: <Images size={18} />,       color: "#C9A96E", href: "/admin/catalog" },
+    { label: "Services actifs",         value: SERVICES.length, icon: <Scissors size={18} />,     color: "#1A6B3A", href: "/admin/services" },
   ];
 
   const ACTIONS = [
+    { title: "Voir les réservations",  desc: "Confirmer, annuler, suivre les acomptes",                href: "/admin/bookings",        icon: <CalendarDays size={20} />, color: "#8B1A1A" },
+    { title: "Lire les messages",      desc: "Demandes reçues via le formulaire de contact",           href: "/admin/messages",        icon: <Inbox size={20} />,     color: "#1A3A6B" },
     { title: "Rechercher des images",  desc: "Pexels, Unsplash — télécharger vers le catalogue",       href: "/admin/images",          icon: <Images size={20} />,    color: "#8B1A1A" },
     { title: "Mes photos",             desc: "Importe tes propres photos depuis ton ordinateur",        href: "/admin/images?tab=upload", icon: <Upload size={20} />,   color: "#C9A96E" },
     { title: "Gérer le catalogue",     desc: "Voir, modifier, supprimer et mettre en avant les images", href: "/admin/catalog",          icon: <FolderOpen size={20} />, color: "#1A1A1A" },
@@ -78,7 +90,7 @@ export default async function AdminDashboard() {
 
       {/* Actions rapides */}
       <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Actions rapides</h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
         {ACTIONS.map((a) => (
           <Link key={a.href} href={a.href}
             className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow group flex flex-col gap-3">

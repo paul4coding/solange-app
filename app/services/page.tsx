@@ -41,7 +41,7 @@ export default function ServicesPage() {
             </Link>
           </div>
           <div className="hidden lg:block h-48 rounded-2xl overflow-hidden">
-            <img src="/images/salon/salon-interior.jpg" alt="Salon" className="w-full h-full object-cover" />
+            <img src="/images/salon/salon-styling.jpg" alt="Salon" className="w-full h-full object-cover" style={{ objectPosition: "center 42%" }} />
           </div>
         </div>
       </section>

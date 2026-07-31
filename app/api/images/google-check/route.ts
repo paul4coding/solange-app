@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { requireApiAuth } from "@/lib/auth";
 
 export async function GET() {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   const key = process.env.GOOGLE_API_KEY?.trim();
   const cx  = process.env.GOOGLE_CX_ID?.trim();
 

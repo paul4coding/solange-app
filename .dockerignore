@@ -1,0 +1,30 @@
+# Dépendances et artefacts de build — reconstruits dans l'image
+node_modules
+.next
+out
+build
+*.tsbuildinfo
+
+# Secrets — injectés à l'exécution via docker compose, jamais copiés dans l'image
+.env
+.env.*
+CLES-API-PRIVE.txt
+
+# Git et outillage local
+.git
+.gitignore
+.claude
+
+# Sauvegardes et archives volumineuses
+cloudinary-images-download
+cloudinary-images.zip
+*.zip
+salon images
+preview-images.html
+
+# Divers
+README.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+npm-debug.log*

@@ -68,9 +68,10 @@ export default function WhyChooseUs() {
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-xl h-80 lg:h-96">
               <img
-                src="/images/salon/salon-interior.jpg"
+                src="/images/salon/salon-stations.jpg"
                 alt="Solange's salon interior"
                 className="w-full h-full object-cover"
+                style={{ objectPosition: "center 40%" }}
               />
               {/* Overlay brand */}
               <div

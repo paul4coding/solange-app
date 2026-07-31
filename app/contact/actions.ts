@@ -1,6 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { query } from "@/lib/db";
+import { sendContactAlertToSalon } from "@/lib/email";
 
 export async function submitContactForm(formData: FormData) {
   const name    = (formData.get("name")    as string)?.trim();
@@ -23,7 +24,13 @@ export async function submitContactForm(formData: FormData) {
     console.error("Contact insert failed:", e);
   }
 
-  console.log("Contact form:", { name, phone, email, service, message });
+  // Alerte au salon — un échec d'envoi ne doit pas bloquer la visiteuse,
+  // le message est déjà enregistré et consultable dans l'admin.
+  try {
+    await sendContactAlertToSalon({ name, email, phone, service, message });
+  } catch (emailErr) {
+    console.error("Contact email notification failed:", emailErr);
+  }
 
   redirect("/contact?sent=1");
 }

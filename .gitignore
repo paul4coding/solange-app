@@ -34,9 +34,18 @@ yarn-error.log*
 .env*
 !.env.superviseur
 !.env.local.example
+!.env.docker.example
 
 # clés API à transmettre en privé — jamais dans git
 CLES-API-PRIVE.txt
+
+# sauvegardes et sources d'images — les photos utilisées par le site
+# sont versionnées dans public/images/, ces copies sont redondantes
+cloudinary-images-download/
+cloudinary-images.zip
+*.zip
+salon images/
+preview-images.html
 
 # vercel
 .vercel

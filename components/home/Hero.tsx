@@ -242,10 +242,11 @@ export default async function Hero() {
                 }}
               >
                 <Image
-                  src="/images/salon/salon-interior.jpg"
+                  src="/images/salon/salon-reception.jpg"
                   alt="Solange's Hair Braiding Salon"
                   fill
-                  className="object-cover object-center"
+                  className="object-cover"
+                  style={{ objectPosition: "center 45%" }}
                   priority
                   sizes="280px"
                 />

@@ -30,7 +30,7 @@ export default async function ContactPage({
             </p>
           </div>
           <div className="hidden lg:block h-56 rounded-2xl overflow-hidden shadow-xl">
-            <img src="/images/salon/salon-interior.jpg" alt="Contact us" className="w-full h-full object-cover" />
+            <img src="/images/salon/salon-reception.jpg" alt="Contact us" className="w-full h-full object-cover" style={{ objectPosition: "center 38%" }} />
           </div>
         </div>
       </section>

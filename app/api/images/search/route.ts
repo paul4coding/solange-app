@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchAllSources, searchPinterest, searchPexels, searchPixabay, searchUnsplash, searchGoogle } from "@/lib/imageApis";
+import { requireApiAuth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q");
   const source = searchParams.get("source") || "all";

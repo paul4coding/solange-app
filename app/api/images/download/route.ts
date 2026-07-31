@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadImageFromUrl } from "@/lib/cloudinary";
 import { query, queryOne } from "@/lib/db";
+import { requireApiAuth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { imageUrl, serviceSlug, title, source, sourceId, altText, photographer, photographerUrl, tags, isFeatured } = body;
@@ -49,6 +53,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   try {
     const { imageId, cloudinaryPublicId } = await request.json();
 
@@ -66,6 +73,9 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   const { searchParams } = new URL(request.url);
   const serviceSlug = searchParams.get("service");
   const featured = searchParams.get("featured");
@@ -86,11 +96,29 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Colonnes modifiables depuis le catalogue admin — tout le reste est ignoré,
+// pour que les clés reçues ne puissent pas être injectées dans le SQL.
+const EDITABLE_COLUMNS = [
+  "title", "alt_text", "service_slug", "photographer",
+  "is_featured", "is_active",
+] as const;
+
 export async function PATCH(request: NextRequest) {
+  const denied = await requireApiAuth();
+  if (denied) return denied;
+
   try {
     const { imageId, updates } = await request.json();
-    const fields = Object.keys(updates).map((k) => `\`${k}\` = ?`).join(", ");
-    const values = [...Object.values(updates), imageId];
+
+    const keys = Object.keys(updates ?? {}).filter(
+      (k) => (EDITABLE_COLUMNS as readonly string[]).includes(k)
+    );
+    if (!imageId || keys.length === 0) {
+      return NextResponse.json({ error: "Aucun champ modifiable fourni" }, { status: 400 });
+    }
+
+    const fields = keys.map((k) => `\`${k}\` = ?`).join(", ");
+    const values = [...keys.map((k) => updates[k]), imageId];
     await query(`UPDATE images SET ${fields} WHERE id = ?`, values);
     const image = await queryOne("SELECT * FROM images WHERE id = ?", [imageId]);
     return NextResponse.json({ success: true, image });

@@ -81,9 +81,10 @@ export default async function GalleryPage({
           </div>
           <div className="hidden lg:block h-56 rounded-2xl overflow-hidden shadow-xl">
             <img
-              src="/images/salon/salon-interior.jpg"
+              src="/images/salon/salon-styling.jpg"
               alt="Solange's Hair Braiding Salon"
               className="w-full h-full object-cover"
+              style={{ objectPosition: "center 42%" }}
             />
           </div>
         </div>
