@@ -70,8 +70,10 @@ CREATE TABLE IF NOT EXISTS `reviews` (
 -- ---------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `bookings` (
   `id`             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `service_slug`   VARCHAR(100) NOT NULL,
-  `service_name`   VARCHAR(200),
+  -- La cliente décrit le style souhaité en texte libre dans `service_name`.
+  -- `service_slug` n'est conservé que pour les anciennes réservations.
+  `service_slug`   VARCHAR(100) DEFAULT NULL,
+  `service_name`   TEXT         NOT NULL,
   `date`           DATE         NOT NULL,
   `time`           VARCHAR(20)  NOT NULL,
   `client_name`    VARCHAR(200) NOT NULL,

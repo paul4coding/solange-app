@@ -5,17 +5,18 @@ import { requireApiAuth } from "@/lib/auth";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { serviceSlug, serviceName, date, time, name, phone, email, stylist, notes } = body;
+    const { serviceName, date, time, name, phone, email, stylist, notes } = body;
 
-    if (!serviceSlug || !date || !time || !name || !phone || !email) {
+    // Le style souhaité est saisi en texte libre : il n'y a plus de catalogue.
+    if (!serviceName || !date || !time || !name || !phone || !email) {
       return NextResponse.json({ error: "Champs obligatoires manquants" }, { status: 400 });
     }
 
     await query(
       `INSERT INTO bookings
-        (service_slug, service_name, date, time, client_name, client_phone, client_email, stylist, notes, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
-      [serviceSlug, serviceName || null, date, time, name, phone, email, stylist || null, notes || null]
+        (service_name, date, time, client_name, client_phone, client_email, stylist, notes, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+      [serviceName, date, time, name, phone, email, stylist || null, notes || null]
     );
 
     const booking = await queryOne<{ id: number }>("SELECT LAST_INSERT_ID() as id");

@@ -1,18 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, ChevronDown, ArrowRight } from "lucide-react";
-import { SERVICES } from "@/lib/constants";
+import { Menu } from "lucide-react";
 import NavCloseOnNavigate from "./NavCloseOnNavigate";
 
 const NAV = [
   { label: "Home", href: "/" },
-  { label: "Services", href: "/services", dropdown: true },
   { label: "Gallery", href: "/gallery" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
-
-const FEATURED_SERVICES = SERVICES.filter((s) => s.featured).slice(0, 6);
 
 export default function Navbar() {
   return (
@@ -41,36 +37,7 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-6">
-            {NAV.map((item) =>
-              item.dropdown ? (
-                <div key={item.label} className="relative group">
-                  <Link
-                    href={item.href}
-                    className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-[#8B1A1A] transition-colors py-2"
-                  >
-                    {item.label}
-                    <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
-                  </Link>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-72 bg-white shadow-xl rounded-xl border border-gray-100 p-4 opacity-0 invisible -translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200">
-                    <div className="grid grid-cols-2 gap-2">
-                      {FEATURED_SERVICES.map((s) => (
-                        <Link
-                          key={s.slug}
-                          href={`/services/${s.slug}`}
-                          className="text-xs text-gray-600 hover:text-[#8B1A1A] hover:bg-red-50 px-2 py-1.5 rounded-md transition-colors"
-                        >
-                          {s.name}
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <Link href="/services" className="inline-flex items-center gap-1 text-xs font-semibold text-[#8B1A1A] hover:underline">
-                        View All Services <ArrowRight size={12} />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ) : (
+            {NAV.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
@@ -78,8 +45,7 @@ export default function Navbar() {
                 >
                   {item.label}
                 </Link>
-              )
-            )}
+            ))}
             <Link
               href="/booking"
               className="text-sm font-semibold text-white px-5 py-2 rounded-lg hover:opacity-90 transition-opacity"

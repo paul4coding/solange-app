@@ -7,7 +7,8 @@ import {
 } from "@/lib/email";
 
 export async function submitBooking(formData: FormData) {
-  const serviceSlug = (formData.get("serviceSlug") as string)?.trim();
+  // La cliente décrit le style souhaité en texte libre : il n'y a plus de
+  // catalogue de prestations à sélectionner.
   const serviceName = (formData.get("serviceName") as string)?.trim();
   const date        = (formData.get("date")        as string)?.trim();
   const time        = (formData.get("time")        as string)?.trim();
@@ -17,16 +18,16 @@ export async function submitBooking(formData: FormData) {
   const stylist     = (formData.get("stylist")     as string)?.trim();
   const notes       = (formData.get("notes")       as string)?.trim();
 
-  if (!serviceSlug || !date || !time || !name || !phone || !email) {
+  if (!serviceName || !date || !time || !name || !phone || !email) {
     redirect("/booking?error=1");
   }
 
   try {
     await query(
       `INSERT INTO bookings
-        (service_slug, service_name, date, time, client_name, client_phone, client_email, stylist, notes, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
-      [serviceSlug, serviceName || null, date, time, name, phone, email, stylist || null, notes || null]
+        (service_name, date, time, client_name, client_phone, client_email, stylist, notes, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+      [serviceName, date, time, name, phone, email, stylist || null, notes || null]
     );
   } catch (e) {
     console.error("Booking insert failed:", e);
@@ -39,7 +40,7 @@ export async function submitBooking(formData: FormData) {
       sendBookingConfirmationToClient({
         clientName:  name,
         clientEmail: email,
-        service:     serviceName || serviceSlug,
+        service:     serviceName,
         date,
         time,
         stylist:     stylist || undefined,
@@ -49,7 +50,7 @@ export async function submitBooking(formData: FormData) {
         clientName:  name,
         clientEmail: email,
         clientPhone: phone,
-        service:     serviceName || serviceSlug,
+        service:     serviceName,
         date,
         time,
         stylist:     stylist || undefined,
@@ -61,8 +62,8 @@ export async function submitBooking(formData: FormData) {
     // Don't block the user — booking is already saved
   }
 
-  console.log("Booking:", { serviceSlug, date, time, name, phone, email });
+  console.log("Booking:", { serviceName, date, time, name, phone, email });
 
-  const params = new URLSearchParams({ name, service: serviceName || serviceSlug, date, time });
+  const params = new URLSearchParams({ name, service: serviceName, date, time });
   redirect(`/booking/confirmation?${params.toString()}`);
 }

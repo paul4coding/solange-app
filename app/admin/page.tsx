@@ -141,10 +141,6 @@ export default async function AdminDashboard() {
                       style={{ backgroundColor: "var(--color-primary)" }}>
                       <Images size={11} /> Images
                     </Link>
-                    <Link href={`/services/${s.slug}`} target="_blank"
-                      className="text-xs px-2 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors flex items-center gap-1">
-                      <ExternalLink size={11} />
-                    </Link>
                   </div>
                 </td>
               </tr>

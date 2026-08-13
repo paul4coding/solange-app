@@ -48,8 +48,8 @@ export default function Footer() {
               {[
                 { label: "Home", href: "/" },
                 { label: "About Us", href: "/about" },
-                { label: "Services", href: "/services" },
                 { label: "Gallery", href: "/gallery" },
+                { label: "FAQ", href: "/faq" },
                 { label: "Contact", href: "/contact" },
                 { label: "Book Appointment", href: "/booking" },
               ].map((link) => (
@@ -62,16 +62,16 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Our services */}
+          {/* Our work */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider opacity-60">Our Services</h4>
-            <ul className="space-y-2 text-sm opacity-80">
-              {["Braids", "Twists", "Weaves", "Kids Styles", "Locs Styles", "Lace Styles"].map((s) => (
-                <li key={s}>
-                  <Link href="/services" className="hover:text-yellow-200 transition-colors">{s}</Link>
-                </li>
-              ))}
-            </ul>
+            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider opacity-60">Our Work</h4>
+            <p className="text-sm opacity-80 leading-relaxed mb-3">
+              Braids, twists, locs and weaves — every style crafted with care.
+              Tell us what you have in mind and we will make it happen.
+            </p>
+            <Link href="/gallery" className="text-sm font-semibold hover:text-yellow-200 transition-colors">
+              See our gallery
+            </Link>
           </div>
 
           {/* Contact + Hours */}

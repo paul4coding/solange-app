@@ -278,13 +278,6 @@ export default function AdminServicesPage() {
                   >
                     <Images size={12} /> Gérer les images
                   </Link>
-                  <Link
-                    href={`/services/${s.slug}`}
-                    target="_blank"
-                    className="text-xs font-semibold text-gray-600 border border-gray-200 py-2 px-3 rounded-lg hover:bg-gray-50 flex items-center gap-1"
-                  >
-                    <ExternalLink size={12} />
-                  </Link>
                   <button
                     onClick={() => handleDelete(s.id)}
                     disabled={deleting === s.id}
@@ -328,13 +321,6 @@ export default function AdminServicesPage() {
                       style={{ backgroundColor: "#8B1A1A" }}
                     >
                       <Images size={12} /> Gérer les images
-                    </Link>
-                    <Link
-                      href={`/services/${s.slug}`}
-                      target="_blank"
-                      className="text-xs font-semibold text-gray-600 border border-gray-200 py-2 px-3 rounded-lg hover:bg-gray-50 flex items-center gap-1"
-                    >
-                      <ExternalLink size={12} /> Voir
                     </Link>
                   </div>
                 </div>

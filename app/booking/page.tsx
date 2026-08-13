@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
-import { SERVICES, BUSINESS, TEAM } from "@/lib/constants";
+import { BUSINESS, TEAM } from "@/lib/constants";
 import { submitBooking } from "./actions";
 
 export const metadata: Metadata = { title: "Book an Appointment" };
@@ -44,25 +44,17 @@ export default async function BookingPage({
             </div>
           )}
 
-          {/* Service */}
+          {/* Style souhaité — champ libre */}
           <div>
             <label className="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-2">
-              Service *
+              What style would you like? *
             </label>
-            <select name="serviceSlug" required
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#8B1A1A] transition-colors"
-              onChange={undefined}
-            >
-              <option value="">— Select a service —</option>
-              {SERVICES.map((s) => (
-                <option key={s.slug} value={s.slug}
-                  data-name={s.name}>
-                  {s.name} — from ${s.startingPrice} · {s.duration}
-                </option>
-              ))}
-            </select>
-            {/* Hidden field populated by service name via JS (fallback: slug used) */}
-            <input type="hidden" name="serviceName" value="" id="serviceName-hidden" />
+            <textarea name="serviceName" required rows={3}
+              placeholder="Tell us the style you have in mind — braids, twists, locs, a length, a colour, or a photo you saw. We will confirm the price with you."
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm leading-relaxed focus:outline-none focus:border-[#8B1A1A] transition-colors resize-y" />
+            <p className="text-xs text-gray-400 mt-1.5">
+              Not sure what it is called? Just describe it — we will help you choose.
+            </p>
           </div>
 
           {/* Date */}

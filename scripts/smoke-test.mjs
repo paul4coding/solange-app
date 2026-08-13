@@ -70,9 +70,8 @@ async function main() {
   // ── 1. Pages publiques ──────────────────────────────────────────────
   section("1. Pages publiques");
   const publicPages = [
-    "/", "/services", "/gallery", "/contact", "/booking",
+    "/", "/gallery", "/contact", "/booking",
     "/about", "/faq",
-    "/services/box-braids", "/services/knotless-braids", "/services/butterfly-locs",
   ];
   for (const p of publicPages) {
     const s = await status(p);
@@ -83,8 +82,15 @@ async function main() {
   check("L'accueil affiche le nom du salon", home.text.includes("Solange"));
   check("L'accueil affiche le téléphone", home.text.includes("443.320.1312"));
 
-  const s404 = await status("/services/ce-service-nexiste-pas");
-  check("Service inconnu → 404", s404 === 404, `reçu ${s404}`);
+  // Les pages de prestations et la page tarifs ont été retirées du site.
+  for (const gone of ["/services", "/services/box-braids", "/pricing"]) {
+    const s = await status(gone);
+    check(`${gone} → 404 (page retirée)`, s === 404, `reçu ${s}`);
+  }
+
+  const booking = await body("/booking");
+  check("La réservation propose un champ libre", booking.text.includes('name="serviceName"'));
+  check("La réservation n'a plus de liste de prestations", !booking.text.includes('name="serviceSlug"'));
 
   // ── 2. Photos du salon ──────────────────────────────────────────────
   section("2. Photos du salon");
@@ -229,7 +235,7 @@ async function main() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      serviceSlug: "box-braids", serviceName: "ZZTEST Box Braids",
+      serviceName: "ZZTEST — des tresses knotless mi-longues, couleur 1B",
       date: "2026-09-01", time: "11:00 AM",
       name: "ZZTEST Cliente", phone: "4435550000", email: "zztest@example.com",
       notes: "Réservation générée par la suite de tests",
@@ -243,7 +249,7 @@ async function main() {
 
   const missing = await status("/api/booking", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ serviceSlug: "box-braids" }),
+    body: JSON.stringify({ serviceName: "ZZTEST incomplet" }),
   });
   check("Champs manquants → 400", missing === 400, `reçu ${missing}`);
 
