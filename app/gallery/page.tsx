@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarCheck } from "lucide-react";
+import { CalendarCheck, Camera } from "lucide-react";
 import { query } from "@/lib/db";
 import { BUSINESS } from "@/lib/constants";
 
@@ -12,50 +12,17 @@ export const metadata: Metadata = {
   description: "Browse our gallery of beautiful braids, twists, and weaves. Knotless braids, box braids, boho braids, passion twists, and more in Glen Burnie, MD.",
 };
 
-const FILTERS: { key: string; label: string; slugs: string[] }[] = [
-  { key: "all",       label: "All Styles",     slugs: [] },
-  { key: "knotless",  label: "Knotless Braids", slugs: ["knotless-braids"] },
-  { key: "box",       label: "Box Braids",      slugs: ["box-braids"] },
-  { key: "boho",      label: "Boho Braids",     slugs: ["boho-braids"] },
-  { key: "twists",    label: "Twists",          slugs: ["passion-twist", "senegalese-twist"] },
-  { key: "cornrows",  label: "Cornrows",        slugs: ["feed-in-braids", "stitch-braids"] },
-  { key: "locs",      label: "Loc Styles",      slugs: ["starter-locs", "loc-retwist"] },
-  { key: "kids",      label: "Kids Styles",     slugs: ["kids-braids"] },
-  { key: "fulani",    label: "Fulani & Tribal", slugs: ["fulani-braids"] },
-  { key: "butterfly", label: "Butterfly Locs",  slugs: ["butterfly-locs"] },
-  { key: "weaves",    label: "Weaves",          slugs: ["frontal-install"] },
-];
+type ImgRow = { id: number; cloudinary_url: string; alt_text: string };
 
-type ImgRow = { id: number; service_slug: string; cloudinary_url: string; alt_text: string };
-
-export default async function GalleryPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string }>;
-}) {
-  const { category = "all" } = await searchParams;
-  const filter = FILTERS.find((f) => f.key === category) ?? FILTERS[0];
-
+export default async function GalleryPage() {
   let imgs: ImgRow[] = [];
   try {
-    if (filter.slugs.length > 0) {
-      const placeholders = filter.slugs.map(() => "?").join(",");
-      imgs = await query<ImgRow>(
-        `SELECT id, service_slug, cloudinary_url, alt_text
-         FROM images
-         WHERE is_active = 1 AND cloudinary_url IS NOT NULL
-           AND service_slug IN (${placeholders})
-         ORDER BY service_slug ASC`,
-        filter.slugs
-      );
-    } else {
-      imgs = await query<ImgRow>(
-        `SELECT id, service_slug, cloudinary_url, alt_text
-         FROM images
-         WHERE is_active = 1 AND cloudinary_url IS NOT NULL
-         ORDER BY service_slug ASC`
-      );
-    }
+    imgs = await query<ImgRow>(
+      `SELECT id, cloudinary_url, alt_text
+       FROM images
+       WHERE is_active = 1 AND cloudinary_url IS NOT NULL
+       ORDER BY id ASC`
+    );
   } catch {
     imgs = [];
   }
@@ -90,58 +57,26 @@ export default async function GalleryPage({
         </div>
       </section>
 
-      {/* Filter tabs */}
-      <section
-        className="bg-white border-b border-gray-100 py-4 px-4"
-        style={{ position: "sticky", top: "80px", zIndex: 40 }}
-      >
-        <div className="max-w-7xl mx-auto flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {FILTERS.map((f) => {
-            const isActive = f.key === category;
-            return (
-              <Link
-                key={f.key}
-                href={f.key === "all" ? "/gallery" : `/gallery?category=${f.key}`}
-                className="shrink-0 text-xs font-semibold px-4 py-2 rounded-full transition-all"
-                style={{
-                  backgroundColor: isActive ? "var(--color-primary)" : "transparent",
-                  color: isActive ? "white" : "#6B7280",
-                  border: `1.5px solid ${isActive ? "var(--color-primary)" : "#E5E7EB"}`,
-                  textDecoration: "none",
-                }}
-              >
-                {f.label}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
       {/* Image grid */}
       <section className="py-10 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           {imgs.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {imgs.map((img) => (
-                <div key={img.id} className="aspect-[3/4] rounded-xl overflow-hidden relative group cursor-pointer">
+                <div key={img.id} className="aspect-[3/4] rounded-xl overflow-hidden relative group">
                   <Image
                     src={img.cloudinary_url}
-                    alt={img.alt_text || img.service_slug}
+                    alt={img.alt_text || "Coiffure réalisée au salon"}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                    <span className="text-white text-xs font-semibold capitalize">
-                      {img.service_slug.replace(/-/g, " ")}
-                    </span>
-                  </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-20 text-gray-400">
-              <p className="text-sm">No images for this category yet.</p>
+              <p className="text-sm">No photos yet.</p>
             </div>
           )}
         </div>
@@ -163,7 +98,7 @@ export default async function GalleryPage({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-lg border-2 border-white/50 text-white hover:bg-white hover:text-[#8B1A1A] transition-all"
           >
-            📸 {BUSINESS.instagram}
+            <Camera size={16} /> {BUSINESS.instagram}
           </a>
         </div>
       </section>

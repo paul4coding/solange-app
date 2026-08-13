@@ -47,6 +47,12 @@ cloudinary-images.zip
 salon images/
 preview-images.html
 
+# dossier source des photos du salon : contient aussi une capture d'un tableau
+# comptable (noms de personnes + montants) qui ne doit jamais être publiée.
+# Les photos réellement utilisées sont versionnées dans public/images/gallery/
+image a remplacer/
+*.bmp
+
 # vercel
 .vercel
 

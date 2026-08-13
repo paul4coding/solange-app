@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown, ArrowRight } from "lucide-react";
 import { SERVICES } from "@/lib/constants";
 import NavCloseOnNavigate from "./NavCloseOnNavigate";
 
@@ -9,7 +9,6 @@ const NAV = [
   { label: "Services", href: "/services", dropdown: true },
   { label: "Gallery", href: "/gallery" },
   { label: "About", href: "/about" },
-  { label: "Pricing", href: "/pricing" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -65,8 +64,8 @@ export default function Navbar() {
                       ))}
                     </div>
                     <div className="mt-3 pt-3 border-t border-gray-100">
-                      <Link href="/services" className="text-xs font-semibold text-[#8B1A1A] hover:underline">
-                        View All Services →
+                      <Link href="/services" className="inline-flex items-center gap-1 text-xs font-semibold text-[#8B1A1A] hover:underline">
+                        View All Services <ArrowRight size={12} />
                       </Link>
                     </div>
                   </div>

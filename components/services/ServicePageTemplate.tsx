@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarCheck, Clock, DollarSign, ChevronRight, CheckCircle, Star } from "lucide-react";
+import { CalendarCheck, Clock, DollarSign, ChevronRight, CheckCircle, Star, ArrowRight, Phone } from "lucide-react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { BUSINESS, REVIEWS } from "@/lib/constants";
 import { query } from "@/lib/db";
@@ -43,14 +43,14 @@ export default async function ServicePageTemplate({
   aftercare,
 }: ServicePageProps) {
   type ImgRow = { id: number; cloudinary_url: string; alt_text: string | null; is_featured: number };
-  type RelatedImgRow = { service_slug: string; cloudinary_url: string };
+  type RelatedImgRow = { cloudinary_url: string };
 
-  // Fetch images for this service
+  // Les photos ne sont plus rattachées à une catégorie : chaque page pioche
+  // dans le catalogue commun du salon.
   const images = await query<ImgRow>(
     `SELECT id, cloudinary_url, alt_text, is_featured FROM images
-     WHERE service_slug = ? AND is_active = 1 AND cloudinary_url IS NOT NULL
-     ORDER BY is_featured DESC LIMIT 12`,
-    [slug]
+     WHERE is_active = 1 AND cloudinary_url IS NOT NULL
+     ORDER BY is_featured DESC, id ASC LIMIT 12`
   ).catch(() => [] as ImgRow[]);
 
   const heroImage = images[0]?.cloudinary_url || null;
@@ -66,27 +66,17 @@ export default async function ServicePageTemplate({
     { name: "Fulani Braids", slug: "fulani-braids", price: 180 },
   ].filter(s => s.slug !== slug);
 
-  const relatedSlugs = RELATED.slice(0, 4).map(s => s.slug);
-  const relatedPlaceholders = relatedSlugs.map(() => "?").join(",");
+  // Une photo différente par service suggéré, prise en fin de catalogue pour
+  // ne pas répéter celles déjà affichées plus haut.
   const relatedImgs = await query<RelatedImgRow>(
-    `SELECT service_slug, cloudinary_url FROM images
-     WHERE service_slug IN (${relatedPlaceholders}) AND is_active = 1
-       AND cloudinary_url IS NOT NULL
-     ORDER BY is_featured DESC LIMIT 20`,
-    relatedSlugs
+    `SELECT cloudinary_url FROM images
+     WHERE is_active = 1 AND cloudinary_url IS NOT NULL
+     ORDER BY id DESC LIMIT 4`
   ).catch(() => [] as RelatedImgRow[]);
 
-  // 1 image per related service
-  const relatedImgMap = new Map<string, string>();
-  for (const img of relatedImgs) {
-    if (!relatedImgMap.has(img.service_slug)) {
-      relatedImgMap.set(img.service_slug, img.cloudinary_url!);
-    }
-  }
-
-  const relatedServices = RELATED.slice(0, 4).map(s => ({
+  const relatedServices = RELATED.slice(0, 4).map((s, i) => ({
     ...s,
-    image: relatedImgMap.get(s.slug) || null,
+    image: relatedImgs[i]?.cloudinary_url ?? null,
   }));
 
   return (
@@ -143,7 +133,7 @@ export default async function ServicePageTemplate({
               <Link href="/gallery"
                 className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-lg border-2 hover:bg-gray-50 transition-colors"
                 style={{ borderColor: "var(--color-primary)", color: "var(--color-primary)" }}>
-                VIEW GALLERY →
+                VIEW GALLERY <ArrowRight size={15} />
               </Link>
             </div>
           </div>
@@ -239,8 +229,8 @@ export default async function ServicePageTemplate({
             )}
           </div>
           <div className="mt-6 text-center">
-            <Link href="/gallery" className="text-sm font-semibold hover:underline" style={{ color: "var(--color-primary)" }}>
-              VIEW FULL GALLERY →
+            <Link href="/gallery" className="inline-flex items-center gap-1.5 text-sm font-semibold hover:underline" style={{ color: "var(--color-primary)" }}>
+              VIEW FULL GALLERY <ArrowRight size={15} />
             </Link>
           </div>
         </div>
@@ -325,7 +315,7 @@ export default async function ServicePageTemplate({
             </Link>
             <a href={`tel:${BUSINESS.phone1Raw}`}
               className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-              📞 {BUSINESS.phone1}
+              <Phone size={15} /> {BUSINESS.phone1}
             </a>
           </div>
         </div>

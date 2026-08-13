@@ -32,7 +32,7 @@ interface CustomService { slug: string; name: string; }
 
 const SOURCES = [
   { value: "all",      label: "Toutes les sources" },
-  { value: "google",   label: "🔍 Google Images", badge: "Recommandé" },
+  { value: "google",   label: "Google Images", badge: "Recommandé" },
   { value: "pexels",   label: "Pexels" },
   { value: "unsplash", label: "Unsplash" },
   { value: "pixabay",  label: "Pixabay" },
@@ -228,8 +228,8 @@ export default function AdminImagesPage() {
           </select>
           <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 opacity-70 pointer-events-none" />
         </div>
-        <p className="text-xs opacity-60 mt-2">
-          ✓ Service sélectionné : <strong className="opacity-100">{currentService?.name}</strong>
+        <p className="text-xs opacity-60 mt-2 inline-flex items-center gap-1.5">
+          <Check size={12} className="shrink-0" /> Service sélectionné : <strong className="opacity-100">{currentService?.name}</strong>
         </p>
       </div>
 
@@ -277,7 +277,7 @@ export default function AdminImagesPage() {
                   </p>
                 )}
                 {source === "google" && googleReady === true && (
-                  <p className="text-xs text-green-600 mt-1 font-semibold">✓ Google opérationnel</p>
+                  <p className="text-xs text-green-600 mt-1 font-semibold inline-flex items-center gap-1"><Check size={12} /> Google opérationnel</p>
                 )}
               </div>
 
@@ -404,7 +404,9 @@ GOOGLE_CX_ID=ton_identifiant_cx`}
                       <button onClick={() => downloadImage(img)} disabled={!!downloading || downloaded.has(img.id)}
                         className={`mt-1.5 w-full text-xs py-1.5 rounded-lg font-semibold transition-all ${downloaded.has(img.id) ? "bg-green-100 text-green-700" : "text-white hover:opacity-90"}`}
                         style={{ backgroundColor: downloaded.has(img.id) ? undefined : "#8B1A1A" }}>
-                        {downloaded.has(img.id) ? "✓ Sauvé" : downloading === img.id ? "..." : "Sauvegarder"}
+                        {downloaded.has(img.id)
+                          ? <span className="inline-flex items-center justify-center gap-1"><Check size={12} /> Sauvé</span>
+                          : downloading === img.id ? "..." : "Sauvegarder"}
                       </button>
                     </div>
                   </div>
@@ -503,7 +505,7 @@ GOOGLE_CX_ID=ton_identifiant_cx`}
                           </button>
                         </>
                       )}
-                      {item.status === "done" && <p className="text-xs text-green-600 font-semibold text-center">✓ Ajoutée !</p>}
+                      {item.status === "done" && <p className="text-xs text-green-600 font-semibold flex items-center justify-center gap-1"><Check size={12} /> Ajoutée !</p>}
                       {item.status === "error" && <p className="text-xs text-red-500 text-center">{item.error}</p>}
                     </div>
                   </div>

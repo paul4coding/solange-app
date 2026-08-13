@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Images, FolderOpen, Scissors, LogOut, CalendarDays, Inbox } from "lucide-react";
+import { LayoutDashboard, Images, FolderOpen, Scissors, LogOut, CalendarDays, Inbox, ArrowLeft } from "lucide-react";
 import { logoutAdmin } from "./login/actions";
 
 const NAV = [
@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className="p-4 border-t border-white/10 space-y-2">
           <Link href="/" className="flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-colors">
-            ← Back to Website
+            <ArrowLeft size={13} /> Back to Website
           </Link>
           <form action={logoutAdmin}>
             <button

@@ -5,11 +5,11 @@ import { BUSINESS } from "@/lib/constants";
 import { query } from "@/lib/db";
 
 export default async function Hero() {
+  // Les photos ne sont plus rangées par catégorie : on prend la première du catalogue.
   const heroImages = await query<{ cloudinary_url: string; alt_text: string }>(
     `SELECT cloudinary_url, alt_text FROM images
-     WHERE service_slug IN ('knotless-braids','box-braids','boho-braids')
-       AND is_featured = 1 AND cloudinary_url IS NOT NULL AND is_active = 1
-     ORDER BY is_featured DESC LIMIT 1`
+     WHERE is_active = 1 AND cloudinary_url IS NOT NULL
+     ORDER BY is_featured DESC, id ASC LIMIT 1`
   ).catch(() => []);
 
   const braidingImage = heroImages[0]?.cloudinary_url || null;

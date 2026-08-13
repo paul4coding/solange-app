@@ -1,3 +1,4 @@
+import { Sparkle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SectionHeaderProps {
@@ -42,7 +43,7 @@ export default function SectionHeader({
       {/* Gold ornament */}
       <div className={cn("flex items-center gap-2 mt-3", centered && "justify-center")}>
         <div className={cn("h-px w-12", light ? "bg-yellow-300/50" : "bg-[#C9A96E]/40")} />
-        <span className={light ? "text-yellow-300" : "text-[#C9A96E]"}>✦</span>
+        <Sparkle size={13} fill="currentColor" strokeWidth={0} className={light ? "text-yellow-300" : "text-[#C9A96E]"} />
         <div className={cn("h-px w-12", light ? "bg-yellow-300/50" : "bg-[#C9A96E]/40")} />
       </div>
     </div>

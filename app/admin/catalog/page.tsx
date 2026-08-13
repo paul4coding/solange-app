@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Trash2, Star, StarOff, Eye, RefreshCw, Filter } from "lucide-react";
+import { Trash2, Star, StarOff, Eye, RefreshCw, Filter, ImageIcon, Camera, ArrowRight } from "lucide-react";
 import { SERVICES } from "@/lib/constants";
 
 interface CatalogImage {
@@ -127,12 +127,12 @@ export default function AdminCatalogPage() {
       {/* Empty state */}
       {!loading && images.length === 0 && (
         <div className="text-center py-16 text-gray-400 bg-white rounded-2xl shadow-sm">
-          <div className="text-4xl mb-3">🖼️</div>
+          <ImageIcon size={40} className="mx-auto mb-3 text-gray-300" strokeWidth={1.5} />
           <p className="text-sm font-medium">No images in catalog yet</p>
           <p className="text-xs mt-1">Go to Image Search to download images</p>
-          <a href="/admin/images" className="mt-4 inline-block text-xs font-semibold text-white px-4 py-2 rounded-lg hover:opacity-90"
+          <a href="/admin/images" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white px-4 py-2 rounded-lg hover:opacity-90"
             style={{ backgroundColor: "#8B1A1A" }}>
-            Search & Download Images →
+            Search &amp; Download Images <ArrowRight size={13} />
           </a>
         </div>
       )}
@@ -181,7 +181,9 @@ export default function AdminCatalogPage() {
               <div className="p-2">
                 <p className="text-xs font-medium text-gray-800 truncate">{img.title}</p>
                 <p className="text-xs text-gray-400 capitalize">{img.service_slug?.replace(/-/g, " ")}</p>
-                <p className="text-xs text-gray-400 truncate">📷 {img.photographer}</p>
+                <p className="text-xs text-gray-400 truncate inline-flex items-center gap-1">
+                  <Camera size={11} className="shrink-0" /> {img.photographer}
+                </p>
               </div>
             </div>
           ))}

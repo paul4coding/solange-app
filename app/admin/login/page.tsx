@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import { loginAdmin } from "./actions";
 
 export const metadata: Metadata = { title: "Admin Login — Solange's" };
@@ -71,10 +72,10 @@ export default async function LoginPage({
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity mt-2"
+            className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity mt-2 flex items-center justify-center gap-2"
             style={{ backgroundColor: "#8B1A1A" }}
           >
-            Se connecter →
+            Se connecter <ArrowRight size={15} />
           </button>
         </form>
       </div>

@@ -22,23 +22,21 @@ const FALLBACK_ICONS: Record<string, React.ReactNode> = {
   "fulani-braids": <Scissors size={28} strokeWidth={1.5} />,
 };
 
-type ImgRow = { service_slug: string; cloudinary_url: string };
+type ImgRow = { cloudinary_url: string };
 
 export default async function SignatureServices() {
-  const slugs = featured.map((s) => s.slug);
-  const placeholders = slugs.map(() => "?").join(",");
+  // Plus de catégories : on distribue les photos du catalogue dans l'ordre,
+  // une par carte de service.
   const images = await query<ImgRow>(
-    `SELECT service_slug, cloudinary_url FROM images
-     WHERE is_active = 1 AND is_featured = 1 AND cloudinary_url IS NOT NULL
-       AND service_slug IN (${placeholders})`,
-    slugs
+    `SELECT cloudinary_url FROM images
+     WHERE is_active = 1 AND cloudinary_url IS NOT NULL
+     ORDER BY id ASC`
   ).catch(() => [] as ImgRow[]);
 
   const imageMap: Record<string, string> = {};
-  images.forEach((img) => {
-    if (!imageMap[img.service_slug]) {
-      imageMap[img.service_slug] = img.cloudinary_url;
-    }
+  featured.forEach((s, i) => {
+    const img = images[i % (images.length || 1)];
+    if (img) imageMap[s.slug] = img.cloudinary_url;
   });
 
   return (

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { ArrowRight } from "lucide-react";
 import { SERVICES, BUSINESS, TEAM } from "@/lib/constants";
 import { submitBooking } from "./actions";
 
@@ -134,7 +135,7 @@ export default async function BookingPage({
           <button type="submit"
             className="w-full py-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
             style={{ backgroundColor: "var(--color-primary)" }}>
-            CONFIRM APPOINTMENT →
+            CONFIRM APPOINTMENT <ArrowRight size={15} />
           </button>
         </form>
 

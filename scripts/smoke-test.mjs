@@ -71,7 +71,7 @@ async function main() {
   section("1. Pages publiques");
   const publicPages = [
     "/", "/services", "/gallery", "/contact", "/booking",
-    "/pricing", "/about", "/faq",
+    "/about", "/faq",
     "/services/box-braids", "/services/knotless-braids", "/services/butterfly-locs",
   ];
   for (const p of publicPages) {
@@ -93,8 +93,8 @@ async function main() {
     check(`/images/salon/${f}.jpg`, s === 200, `reçu ${s}`);
   }
 
-  // ── 2b. Photos du catalogue servies en local ────────────────────────
-  section("2b. Catalogue photo — autonomie vis-à-vis de Cloudinary");
+  // ── 2b. Photos du salon servies en local, sans catégorie ────────────
+  section("2b. Catalogue photo — photos du salon, sans catégorie");
   {
     const probe = await dbConn();
     const [sample] = await probe.query(
@@ -103,24 +103,36 @@ async function main() {
     const [external] = await probe.query(
       "SELECT COUNT(*) n FROM images WHERE is_active = 1 AND cloudinary_url NOT LIKE '/images/%'"
     );
+    const [categorised] = await probe.query(
+      "SELECT COUNT(*) n FROM images WHERE is_active = 1 AND service_slug IS NOT NULL"
+    );
+    const [total] = await probe.query(
+      "SELECT COUNT(*) n FROM images WHERE is_active = 1"
+    );
     await probe.end();
 
     check("Toutes les images pointent vers un chemin local", external[0].n === 0,
       `${external[0].n} images encore externes`);
+    check("Aucune image n'a de catégorie", categorised[0].n === 0,
+      `${categorised[0].n} images encore rattachées à un service`);
+    check(`Le catalogue contient les photos du salon (${total[0].n})`, total[0].n > 0);
 
     for (const row of sample) {
       const s = await status(row.u);
-      check(`${row.u.slice(0, 58)}…`, s === 200, `reçu ${s}`);
+      check(`${row.u}`, s === 200, `reçu ${s}`);
     }
   }
 
   // Une page prérendue sans base afficherait ses placeholders : on le détecte ici.
   for (const p of ["/", "/gallery"]) {
     const page = await body(p);
-    check(`${p} sert des photos du catalogue`, page.text.includes("/images/catalog") || page.text.includes("%2Fimages%2Fcatalog"),
-      "aucune image de catalogue dans le HTML — page probablement figée au build");
+    check(`${p} sert des photos du salon`, page.text.includes("/images/gallery") || page.text.includes("%2Fimages%2Fgallery"),
+      "aucune photo dans le HTML — page probablement figée au build");
     check(`${p} n'appelle plus Cloudinary`, !page.text.includes("res.cloudinary.com"));
   }
+
+  const galleryHtml = (await body("/gallery")).text;
+  check("La galerie n'a plus d'onglets de catégorie", !galleryHtml.includes("category="));
 
   const homeHtml = (await body("/")).text;
   check("La galerie de l'accueil est remplie (pas de placeholders)",
@@ -195,7 +207,7 @@ async function main() {
     counts[t] = r[0].n;
   }
   check(`Table services peuplée (${counts.services})`, counts.services >= 13);
-  check(`Table images peuplée (${counts.images})`, counts.images >= 100);
+  check(`Table images peuplée (${counts.images})`, counts.images >= 20);
   check(`Table reviews peuplée (${counts.reviews})`, counts.reviews >= 1);
 
   const [orphans] = await db.query(

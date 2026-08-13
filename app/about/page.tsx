@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Award, BadgeCheck, Heart, Users2, Scissors, Sparkles, CalendarCheck } from "lucide-react";
+import { Award, BadgeCheck, Heart, Users2, Scissors, Sparkles, CalendarCheck, Check, Star } from "lucide-react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { BUSINESS, TEAM } from "@/lib/constants";
 
@@ -80,7 +80,7 @@ export default function AboutPage() {
               { value: `${BUSINESS.yearsExperience}+`, label: "Years of Experience", icon: <Award size={20} /> },
               { value: BUSINESS.happyClients, label: "Happy Clients", icon: <Users2 size={20} /> },
               { value: BUSINESS.totalStyles, label: "Braids & Styles Done", icon: <Scissors size={20} /> },
-              { value: `${BUSINESS.rating}★`, label: "Rated on Google", icon: <Sparkles size={20} /> },
+              { value: `${BUSINESS.rating}`, label: "Rated on Google", icon: <Star size={20} fill="currentColor" strokeWidth={0} /> },
             ].map((s, i) => (
               <div key={i} className="bg-white rounded-2xl p-6 shadow-sm text-center">
                 <div
@@ -200,14 +200,15 @@ export default function AboutPage() {
             { value: `${BUSINESS.yearsExperience}+`, label: "Years of Experience" },
             { value: BUSINESS.happyClients, label: "Happy Clients" },
             { value: BUSINESS.totalStyles, label: "Braids & Styles" },
-            { value: `${BUSINESS.rating}★`, label: "Rated on Google" },
+            { value: `${BUSINESS.rating}`, label: "Rated on Google", icon: <Star size={18} fill="currentColor" strokeWidth={0} /> },
           ].map((s, i) => (
             <div key={i}>
               <div
-                className="text-3xl font-bold mb-1"
+                className="text-3xl font-bold mb-1 flex items-center justify-center gap-1.5"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {s.value}
+                {"icon" in s ? s.icon : null}
               </div>
               <div className="text-xs uppercase tracking-wider opacity-70">{s.label}</div>
             </div>
@@ -235,8 +236,10 @@ export default function AboutPage() {
             <CalendarCheck size={16} />
             BOOK APPOINTMENT NOW
           </Link>
-          <p className="text-xs text-gray-400 mt-5">
-            ✓ Walk-ins Welcome &nbsp;·&nbsp; ✓ Expert Stylists &nbsp;·&nbsp; ✓ Premium Products
+          <p className="text-xs text-gray-400 mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <span className="inline-flex items-center gap-1"><Check size={12} /> Walk-ins Welcome</span>
+            <span className="inline-flex items-center gap-1"><Check size={12} /> Expert Stylists</span>
+            <span className="inline-flex items-center gap-1"><Check size={12} /> Premium Products</span>
           </p>
         </div>
       </section>

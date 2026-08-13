@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Phone, MapPin, Mail, Clock, MessageCircle } from "lucide-react";
+import { Phone, MapPin, Mail, Clock, MessageCircle, Car, CheckCircle2, Navigation, ArrowRight } from "lucide-react";
 import { BUSINESS } from "@/lib/constants";
 import { submitContactForm } from "./actions";
 
@@ -78,8 +78,12 @@ export default async function ContactPage({
                 We are located in Crain Plaza, right off Ritchie Highway (MD-2) and minutes from I-695.
               </p>
               <div className="mt-3 flex gap-4 text-xs text-gray-500">
-                <span>🚗 Free Parking Available on site</span>
-                <span>📍 Great Location</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Car size={13} className="shrink-0" /> Free Parking Available on site
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Navigation size={13} className="shrink-0" /> Great Location
+                </span>
               </div>
             </div>
           </div>
@@ -90,7 +94,7 @@ export default async function ContactPage({
 
             {sent === "1" ? (
               <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center">
-                <div className="text-4xl mb-3">✅</div>
+                <CheckCircle2 size={40} className="mx-auto mb-3 text-green-600" strokeWidth={1.5} />
                 <h4 className="font-bold text-green-800 mb-2">Message Sent!</h4>
                 <p className="text-sm text-green-700">Thank you! We&apos;ll get back to you within 24 hours.</p>
               </div>
@@ -151,7 +155,7 @@ export default async function ContactPage({
                 <button type="submit"
                   className="w-full text-white text-sm font-semibold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: "var(--color-primary)" }}>
-                  SEND MESSAGE →
+                  SEND MESSAGE <ArrowRight size={15} />
                 </button>
               </form>
             )}

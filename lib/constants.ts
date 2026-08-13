@@ -254,6 +254,5 @@ export const NAV_LINKS = [
   { label: "Services", href: "/services", hasDropdown: true },
   { label: "Gallery", href: "/gallery" },
   { label: "About", href: "/about" },
-  { label: "Pricing", href: "/pricing" },
   { label: "Contact", href: "/contact" },
 ];

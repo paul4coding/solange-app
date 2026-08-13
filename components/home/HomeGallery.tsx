@@ -4,22 +4,15 @@ import { ArrowRight } from "lucide-react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { query } from "@/lib/db";
 
-type ImgRow = { id: number; service_slug: string; cloudinary_url: string; alt_text: string | null };
+type ImgRow = { id: number; cloudinary_url: string; alt_text: string | null };
 
 export default async function HomeGallery() {
-  const images = await query<ImgRow>(
-    `SELECT id, service_slug, cloudinary_url, alt_text FROM images
+  // Plus de catégories : simple aperçu des 6 premières photos du catalogue.
+  const gallery = await query<ImgRow>(
+    `SELECT id, cloudinary_url, alt_text FROM images
      WHERE is_active = 1 AND cloudinary_url IS NOT NULL
-     ORDER BY is_featured DESC LIMIT 30`
+     ORDER BY is_featured DESC, id ASC LIMIT 6`
   ).catch(() => [] as ImgRow[]);
-
-  // 1 image par service, max 6 pour la homepage
-  const seen = new Set<string>();
-  const gallery = images.filter(img => {
-    if (seen.has(img.service_slug)) return false;
-    seen.add(img.service_slug);
-    return true;
-  }).slice(0, 6);
 
   return (
     <section className="py-16 px-4 bg-white">
@@ -35,21 +28,16 @@ export default async function HomeGallery() {
           {gallery.length > 0 ? gallery.map((img) => (
             <Link
               key={img.id}
-              href={`/services/${img.service_slug}`}
+              href="/gallery"
               className="aspect-[3/4] rounded-xl overflow-hidden relative group cursor-pointer block"
             >
               <Image
                 src={img.cloudinary_url!}
-                alt={img.alt_text || img.service_slug}
+                alt={img.alt_text || "Coiffure réalisée au salon"}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                <span className="text-white text-xs font-semibold capitalize">
-                  {img.service_slug.replace(/-/g, " ")}
-                </span>
-              </div>
             </Link>
           )) : (
             Array.from({ length: 6 }).map((_, i) => (

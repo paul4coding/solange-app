@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Minus, Phone, MessageCircle, Mail, MapPin } from "lucide-react";
+import { Plus, Minus, Phone, MessageCircle, Mail, MapPin, Check, ArrowRight } from "lucide-react";
 import { FAQS, BUSINESS } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "FAQ" };
@@ -71,7 +71,7 @@ export default function FAQPage() {
           {/* Sidebar */}
           <div className="space-y-5">
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm text-center">
-              <div className="text-3xl mb-3">💬</div>
+              <MessageCircle size={30} className="mx-auto mb-3" strokeWidth={1.5} style={{ color: "var(--color-primary)" }} />
               <h3 className="font-bold text-gray-900 mb-1" style={{ fontFamily: "'Great Vibes', cursive", fontSize: "1.5rem" }}>
                 Still have Questions?
               </h3>
@@ -131,7 +131,7 @@ export default function FAQPage() {
               <ul className="space-y-1 text-xs opacity-80 mb-4">
                 {["Premium Service", "Skilled Stylists", "Clean & Comfortable", "Walk-ins Welcome", "Appointments Recommended"].map(i => (
                   <li key={i} className="flex items-center gap-2">
-                    <span className="text-yellow-300">✓</span> {i}
+                    <Check size={13} className="text-yellow-300 shrink-0" /> {i}
                   </li>
                 ))}
               </ul>
@@ -155,10 +155,10 @@ export default function FAQPage() {
             <Link href="/booking"
               className="inline-flex items-center gap-2 text-white text-sm font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "var(--color-primary)" }}>
-              BOOK APPOINTMENT NOW →
+              BOOK APPOINTMENT NOW <ArrowRight size={15} />
             </Link>
-            <a href={`tel:${BUSINESS.phone1Raw}`} className="font-bold text-sm" style={{ color: "var(--color-primary)" }}>
-              📞 {BUSINESS.phone1}
+            <a href={`tel:${BUSINESS.phone1Raw}`} className="inline-flex items-center gap-1.5 font-bold text-sm" style={{ color: "var(--color-primary)" }}>
+              <Phone size={14} /> {BUSINESS.phone1}
             </a>
           </div>
         </div>

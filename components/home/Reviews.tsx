@@ -20,7 +20,7 @@ export default function Reviews() {
         <SectionHeader
           label="What Our Clients Say"
           title="Client"
-          titleHighlight="Love ♡"
+          titleHighlight="Love"
         />
 
         <div className="mt-10 grid md:grid-cols-3 gap-6">

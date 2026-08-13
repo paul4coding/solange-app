@@ -66,8 +66,8 @@ export default function ServicesPage() {
                   <span className="text-sm font-bold" style={{ color: "var(--color-primary)" }}>
                     FROM ${service.startingPrice}+
                   </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "rgba(139,26,26,0.08)", color: "var(--color-primary)" }}>
-                    LEARN MORE →
+                  <span className="text-xs px-2 py-0.5 rounded-full inline-flex items-center gap-1" style={{ backgroundColor: "rgba(139,26,26,0.08)", color: "var(--color-primary)" }}>
+                    LEARN MORE <ArrowRight size={12} />
                   </span>
                 </div>
               </Link>
