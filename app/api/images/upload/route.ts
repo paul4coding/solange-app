@@ -14,14 +14,14 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
 
   try {
-    const formData    = await request.formData();
-    const file        = formData.get("file") as File | null;
-    const serviceSlug = formData.get("serviceSlug") as string;
-    const altText     = formData.get("altText") as string;
-    const isFeatured  = formData.get("isFeatured") === "true";
+    const formData   = await request.formData();
+    const file       = formData.get("file") as File | null;
+    const altText    = formData.get("altText") as string;
+    const isFeatured = formData.get("isFeatured") === "true";
 
-    if (!file || !serviceSlug) {
-      return NextResponse.json({ error: "file and serviceSlug are required" }, { status: 400 });
+    // Les photos ne sont plus rangées par catégorie : un seul dossier commun.
+    if (!file) {
+      return NextResponse.json({ error: "file is required" }, { status: 400 });
     }
 
     const bytes  = await file.arrayBuffer();
@@ -29,23 +29,23 @@ export async function POST(request: NextRequest) {
     const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
 
     const result = await cloudinary.uploader.upload(base64, {
-      folder:    `solange-hair-braiding/${serviceSlug}`,
-      public_id: `${serviceSlug}-owner-${Date.now()}`,
-      tags:      [serviceSlug, "owner-upload", "solange"],
+      folder:    "solange-hair-braiding/galerie",
+      public_id: `salon-owner-${Date.now()}`,
+      tags:      ["owner-upload", "solange"],
       transformation: [
         { quality: "auto:good", fetch_format: "auto", width: 1200, crop: "limit" },
       ],
     });
 
-    const tags = JSON.stringify([serviceSlug, "owner-upload"]);
-    const alt  = altText || `${serviceSlug.replace(/-/g, " ")} style`;
+    const tags = JSON.stringify(["owner-upload"]);
+    const alt  = altText || "Coiffure réalisée chez Solange's Hair Braiding";
 
     await query(
       `INSERT INTO images
         (service_slug, source, original_url, cloudinary_url, cloudinary_public_id,
          width, height, alt_text, tags, is_featured, is_active)
-       VALUES (?, 'owner', ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-      [serviceSlug, result.secure_url, result.secure_url, result.public_id,
+       VALUES (NULL, 'owner', ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [result.secure_url, result.secure_url, result.public_id,
        result.width, result.height, alt, tags, isFeatured ? 1 : 0]
     );
 

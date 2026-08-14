@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { LayoutDashboard, Images, FolderOpen, Scissors, LogOut, CalendarDays, Inbox, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, ImagePlus, FolderOpen, LogOut, CalendarDays, Inbox, ArrowLeft } from "lucide-react";
 import { logoutAdmin } from "./login/actions";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={16} /> },
   { href: "/admin/bookings", label: "Réservations", icon: <CalendarDays size={16} /> },
   { href: "/admin/messages", label: "Messages", icon: <Inbox size={16} /> },
-  { href: "/admin/images", label: "Image Search", icon: <Images size={16} /> },
-  { href: "/admin/catalog", label: "Catalog", icon: <FolderOpen size={16} /> },
-  { href: "/admin/services", label: "Services", icon: <Scissors size={16} /> },
+  { href: "/admin/images", label: "Ajouter des photos", icon: <ImagePlus size={16} /> },
+  { href: "/admin/catalog", label: "Galerie", icon: <FolderOpen size={16} /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -1,56 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { uploadImageFromUrl } from "@/lib/cloudinary";
 import { query, queryOne } from "@/lib/db";
 import { requireApiAuth } from "@/lib/auth";
 
-export async function POST(request: NextRequest) {
-  const denied = await requireApiAuth();
-  if (denied) return denied;
-
-  try {
-    const body = await request.json();
-    const { imageUrl, serviceSlug, title, source, sourceId, altText, photographer, photographerUrl, tags, isFeatured } = body;
-
-    if (!imageUrl || !serviceSlug) {
-      return NextResponse.json({ error: "imageUrl and serviceSlug are required" }, { status: 400 });
-    }
-
-    const cloudinaryResult = await uploadImageFromUrl(imageUrl, {
-      folder: `solange-hair-braiding/${serviceSlug}`,
-      tags: [serviceSlug, source, ...(tags || [])],
-    });
-
-    await query(
-      `INSERT INTO images
-        (service_slug, title, source, source_id, original_url, cloudinary_url, cloudinary_public_id,
-         width, height, alt_text, tags, photographer, photographer_url, is_featured, is_active)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-      [
-        serviceSlug,
-        title || altText || serviceSlug,
-        source,
-        sourceId || null,
-        imageUrl,
-        cloudinaryResult.url,
-        cloudinaryResult.publicId,
-        cloudinaryResult.width,
-        cloudinaryResult.height,
-        altText || title || serviceSlug,
-        JSON.stringify(tags || []),
-        photographer || null,
-        photographerUrl || null,
-        isFeatured ? 1 : 0,
-      ]
-    );
-
-    const image = await queryOne("SELECT * FROM images ORDER BY created_at DESC LIMIT 1");
-    return NextResponse.json({ success: true, image });
-  } catch (error: unknown) {
-    console.error("Image download error:", error);
-    const msg = error instanceof Error ? error.message : "Failed to download image";
-    return NextResponse.json({ error: msg }, { status: 500 });
-  }
-}
+// Cette route gère la galerie de l'admin : lister, modifier, supprimer.
+// L'ajout de photos passe par /api/images/upload.
 
 export async function DELETE(request: NextRequest) {
   const denied = await requireApiAuth();
@@ -77,18 +30,14 @@ export async function GET(request: NextRequest) {
   if (denied) return denied;
 
   const { searchParams } = new URL(request.url);
-  const serviceSlug = searchParams.get("service");
   const featured = searchParams.get("featured");
 
   try {
     let sql = "SELECT * FROM images WHERE is_active = 1";
-    const params: unknown[] = [];
-
-    if (serviceSlug) { sql += " AND service_slug = ?"; params.push(serviceSlug); }
     if (featured === "true") { sql += " AND is_featured = 1"; }
-    sql += " ORDER BY created_at DESC";
+    sql += " ORDER BY id ASC";
 
-    const images = await query(sql, params);
+    const images = await query(sql);
     return NextResponse.json({ images });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Query failed";

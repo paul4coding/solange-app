@@ -6,8 +6,7 @@ export const dynamic = "force-dynamic";
 
 type Booking = {
   id: number;
-  service_slug: string;
-  service_name: string | null;
+  service_name: string;
   date: string;
   time: string;
   client_name: string;
@@ -117,7 +116,7 @@ export default async function AdminBookingsPage({
               <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-gray-900">{b.service_name || b.service_slug}</span>
+                    <span className="font-bold text-gray-900">{b.service_name}</span>
                     <span
                       className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
                       style={{ backgroundColor: st.bg, color: st.fg }}

@@ -1,11 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Trash2, Star, StarOff, Eye, RefreshCw, Filter, ImageIcon, Camera, ArrowRight } from "lucide-react";
-import { SERVICES } from "@/lib/constants";
+import { Trash2, Star, StarOff, Eye, RefreshCw, ImageIcon, Camera, ArrowRight } from "lucide-react";
 
 interface CatalogImage {
   id: string;
-  service_slug: string;
   title: string;
   source: string;
   cloudinary_url: string;
@@ -20,16 +18,12 @@ interface CatalogImage {
 export default function AdminCatalogPage() {
   const [images, setImages] = useState<CatalogImage[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("all");
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  const fetchImages = async (serviceSlug?: string) => {
+  const fetchImages = async () => {
     setLoading(true);
     try {
-      const url = serviceSlug && serviceSlug !== "all"
-        ? `/api/images/download?service=${serviceSlug}`
-        : "/api/images/download";
-      const res = await fetch(url);
+      const res = await fetch("/api/images/download");
       const data = await res.json();
       setImages(data.images || []);
     } catch (err) {
@@ -42,11 +36,6 @@ export default function AdminCatalogPage() {
   useEffect(() => {
     fetchImages();
   }, []);
-
-  const handleFilterChange = (slug: string) => {
-    setFilter(slug);
-    fetchImages(slug === "all" ? undefined : slug);
-  };
 
   const toggleFeatured = async (img: CatalogImage) => {
     try {
@@ -85,35 +74,13 @@ export default function AdminCatalogPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Image Catalog</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Galerie photo</h1>
           <p className="text-sm text-gray-500 mt-1">{images.length} images • {featured.length} featured</p>
         </div>
-        <button onClick={() => fetchImages(filter === "all" ? undefined : filter)}
+        <button onClick={() => fetchImages()}
           className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
           <RefreshCw size={13} /> Refresh
         </button>
-      </div>
-
-      {/* Filter bar */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm mb-6">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Filter size={14} className="text-gray-400" />
-          <button onClick={() => handleFilterChange("all")}
-            className={`text-xs px-3 py-1.5 rounded-full font-semibold transition-all ${filter === "all" ? "text-white" : "text-gray-500 border border-gray-200"}`}
-            style={{ backgroundColor: filter === "all" ? "#8B1A1A" : undefined }}>
-            All ({images.length})
-          </button>
-          {SERVICES.map((s) => {
-            const count = images.filter((i) => i.service_slug === s.slug).length;
-            return (
-              <button key={s.slug} onClick={() => handleFilterChange(s.slug)}
-                className={`text-xs px-3 py-1.5 rounded-full font-semibold transition-all ${filter === s.slug ? "text-white" : "text-gray-500 border border-gray-200"}`}
-                style={{ backgroundColor: filter === s.slug ? "#8B1A1A" : undefined }}>
-                {s.name} ({count})
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Loading */}
@@ -180,7 +147,6 @@ export default function AdminCatalogPage() {
 
               <div className="p-2">
                 <p className="text-xs font-medium text-gray-800 truncate">{img.title}</p>
-                <p className="text-xs text-gray-400 capitalize">{img.service_slug?.replace(/-/g, " ")}</p>
                 <p className="text-xs text-gray-400 truncate inline-flex items-center gap-1">
                   <Camera size={11} className="shrink-0" /> {img.photographer}
                 </p>

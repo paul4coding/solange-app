@@ -1,11 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, MapPin, Mail, Clock } from "lucide-react";
-import { BUSINESS, SERVICES } from "@/lib/constants";
+import { BUSINESS } from "@/lib/constants";
 
 export default function Footer() {
-  const featuredServices = SERVICES.filter((s) => s.featured);
-
   return (
     <footer className="text-white" style={{ backgroundColor: "var(--color-primary)" }}>
       {/* Main footer */}

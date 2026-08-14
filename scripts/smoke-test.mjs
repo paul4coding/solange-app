@@ -147,31 +147,36 @@ async function main() {
 
   // ── 3. Protection de l'espace admin ─────────────────────────────────
   section("3. Protection de l'espace admin");
-  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog", "/admin/services", "/admin/images"]) {
+  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog", "/admin/images"]) {
     const s = await status(p);
     check(`${p} sans session → redirection`, s === 307 || s === 302, `reçu ${s}`);
   }
   check("/admin/login accessible", (await status("/admin/login")) === 200);
 
-  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog"]) {
+  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog", "/admin/images"]) {
     const s = await status(p, { headers: auth });
     check(`${p} avec session → 200`, s === 200, `reçu ${s}`);
   }
+
+  // L'admin ne doit plus proposer de prestations : il reflète le site.
+  const adminGone = ["/admin/services"];
+  for (const p of adminGone) {
+    const s = await status(p, { headers: auth });
+    check(`${p} → 404 (section retirée)`, s === 404, `reçu ${s}`);
+  }
+
+  const adminNav = (await body("/admin", { headers: auth })).text;
+  check("La navigation admin ne mentionne plus les services", !adminNav.includes(">Services<"));
+  check("Le dashboard n'affiche plus de tableau de prestations", !adminNav.includes("Tous les services"));
 
   // ── 4. Authentification des routes API ──────────────────────────────
   section("4. Routes API — refus sans session");
   const guarded = [
     ["GET",    "/api/booking"],
-    ["GET",    "/api/admin/services"],
-    ["POST",   "/api/admin/services"],
-    ["DELETE", "/api/admin/services"],
     ["GET",    "/api/images/download"],
-    ["POST",   "/api/images/download"],
     ["PATCH",  "/api/images/download"],
     ["DELETE", "/api/images/download"],
     ["POST",   "/api/images/upload"],
-    ["GET",    "/api/images/search?q=braids"],
-    ["GET",    "/api/images/google-check"],
   ];
   for (const [method, path] of guarded) {
     const s = await status(path, {
@@ -183,9 +188,15 @@ async function main() {
   }
 
   section("5. Routes API — acceptation avec session");
-  for (const path of ["/api/booking", "/api/admin/services", "/api/images/download"]) {
+  for (const path of ["/api/booking", "/api/images/download"]) {
     const s = await status(path, { headers: auth });
     check(`GET ${path} → 200`, s === 200, `reçu ${s}`);
+  }
+
+  // Routes de recherche d'images de banque : retirées avec le catalogue Pexels.
+  for (const path of ["/api/admin/services", "/api/images/search?q=braids", "/api/images/google-check"]) {
+    const s = await status(path, { headers: auth });
+    check(`${path} → 404 (route retirée)`, s === 404, `reçu ${s}`);
   }
 
   // ── 6. Liste blanche du PATCH catalogue ─────────────────────────────
