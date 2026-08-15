@@ -8,6 +8,23 @@ const SECRET = new TextEncoder().encode(
 );
 const COOKIE = "admin_session";
 
+/**
+ * Un cookie marqué `Secure` n'est accepté par le navigateur qu'en HTTPS
+ * (localhost mis à part). Déployé sur http://mon-serveur:3000, la connexion
+ * admin semblerait réussir puis retomberait sur le formulaire au premier
+ * rechargement — la session n'étant jamais enregistrée.
+ *
+ * Par défaut on reste en HTTPS. COOKIE_SECURE=false permet un déploiement
+ * temporaire en HTTP simple : le jeton de session circule alors en clair,
+ * à ne faire que sur un réseau de confiance, le temps d'installer un certificat.
+ */
+function cookieSecure() {
+  const flag = process.env.COOKIE_SECURE?.trim().toLowerCase();
+  if (flag === "false" || flag === "0") return false;
+  if (flag === "true"  || flag === "1") return true;
+  return process.env.NODE_ENV === "production";
+}
+
 export async function createSession(username: string) {
   const token = await new SignJWT({ username })
     .setProtectedHeader({ alg: "HS256" })
@@ -18,7 +35,7 @@ export async function createSession(username: string) {
   const jar = await cookies();
   jar.set(COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: cookieSecure(),
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60,
     path: "/",

@@ -54,6 +54,9 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?définir ADMIN_PASSWORD dans .env}
       JWT_SECRET:     ${JWT_SECRET:?définir JWT_SECRET dans .env}
+      # Mettre false uniquement si le site est servi en http:// sans certificat,
+      # sinon la connexion admin boucle sur le formulaire. Voir le README.
+      COOKIE_SECURE:  ${COOKIE_SECURE:-true}
       # Cloudinary
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY:    ${CLOUDINARY_API_KEY}

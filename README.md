@@ -39,6 +39,26 @@ Le site est sur http://localhost:3000 et l'admin sur http://localhost:3000/admin
 
 Pour changer le port : mettre `APP_PORT=8080` dans `.env`.
 
+### ⚠ Connexion admin en HTTP simple
+
+Le cookie de session est marqué `Secure` : les navigateurs ne l'acceptent
+qu'en **HTTPS**, `localhost` mis à part.
+
+Concrètement, si le site est servi sur `http://une-adresse-ip:3000` sans
+certificat, la connexion admin **semble réussir** — le tableau de bord
+s'affiche une seconde — puis retombe sur le formulaire au premier
+rechargement. La session n'a jamais été enregistrée.
+
+Deux options :
+
+| Situation | À faire |
+|-----------|---------|
+| Le site est en **HTTPS** (domaine + certificat) | Rien, laisser `COOKIE_SECURE=true` |
+| Le site est en **HTTP simple** | Mettre `COOKIE_SECURE=false` dans `.env` |
+
+`COOKIE_SECURE=false` fait circuler le jeton de session en clair : à réserver
+à un réseau de confiance, le temps de mettre en place un certificat.
+
 ---
 
 ## Déploiement B — installation classique, 4 étapes
