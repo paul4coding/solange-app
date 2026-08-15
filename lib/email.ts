@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getBusiness } from "@/lib/settings";
 
 /**
  * Le client Resend est créé à la demande, jamais au chargement du module :
@@ -21,11 +22,18 @@ function noKey(kind: string) {
   return null;
 }
 
-const SALON_NAME  = "Solange's Hair Braiding LLC";
-const SALON_EMAIL = "solangesbraidingsalon@gmail.com";
-const SALON_PHONE = "443.320.1312";
-const SALON_ADDR  = "550 Crain Highway N, Glen Burnie, MD 21061";
-const FROM_EMAIL  = process.env.EMAIL_FROM || "Solange's Hair Braiding <onboarding@resend.dev>";
+const SALON_NAME = "Solange's Hair Braiding LLC";
+const FROM_EMAIL = process.env.EMAIL_FROM || "Solange's Hair Braiding <onboarding@resend.dev>";
+
+/**
+ * Email, téléphone et adresse viennent des coordonnées modifiables depuis
+ * l'admin : changer l'email du salon redirige aussi les alertes de réservation
+ * et de contact, sans toucher au code.
+ */
+async function salonContact() {
+  const b = await getBusiness();
+  return { email: b.email, phone: b.phone1, address: b.address };
+}
 
 /** Neutralise le HTML dans les valeurs saisies par le visiteur avant insertion dans le template. */
 function esc(v: string | undefined | null) {
@@ -57,6 +65,7 @@ export async function sendBookingConfirmationToClient(data: {
 }) {
   const { clientName, clientEmail, service, date, time, stylist, notes } = data;
   const prettyDate = fmtDate(date);
+  const salon = await salonContact();
 
   const html = `
 <!DOCTYPE html>
@@ -178,8 +187,8 @@ export async function sendBookingConfirmationToClient(data: {
           <tr>
             <td style="padding:24px 40px 32px;text-align:center;">
               <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#1a1a1a;">${SALON_NAME}</p>
-              <p style="margin:0 0 4px;font-size:12px;color:#888;">📍 ${SALON_ADDR}</p>
-              <p style="margin:0 0 12px;font-size:12px;color:#888;">📞 ${SALON_PHONE}</p>
+              <p style="margin:0 0 4px;font-size:12px;color:#888;">📍 ${salon.address}</p>
+              <p style="margin:0 0 12px;font-size:12px;color:#888;">📞 ${salon.phone}</p>
               <p style="margin:0;font-size:11px;color:#aaa;">If you did not make this booking, please ignore this email.</p>
             </td>
           </tr>
@@ -218,6 +227,7 @@ export async function sendBookingAlertToSalon(data: {
 }) {
   const { clientName, clientEmail, clientPhone, service, date, time, stylist, notes } = data;
   const prettyDate = fmtDate(date);
+  const salon = await salonContact();
 
   const html = `
 <!DOCTYPE html>
@@ -332,7 +342,7 @@ export async function sendBookingAlertToSalon(data: {
 
   return client.emails.send({
     from:    FROM_EMAIL,
-    to:      SALON_EMAIL,
+    to:      salon.email,
     subject: `🆕 New Booking: ${clientName} — ${service} on ${prettyDate} at ${time}`,
     html,
   });
@@ -353,6 +363,7 @@ export async function sendContactAlertToSalon(data: {
   const phone   = esc(data.phone);
   const service = esc(data.service);
   const message = esc(data.message).replace(/\n/g, "<br/>");
+  const salon   = await salonContact();
 
   const html = `
 <!DOCTYPE html>
@@ -448,7 +459,7 @@ export async function sendContactAlertToSalon(data: {
 
   return client.emails.send({
     from:     FROM_EMAIL,
-    to:       SALON_EMAIL,
+    to:       salon.email,
     replyTo:  data.email,
     subject:  `✉️ New Message from ${data.name}${data.service ? ` — ${data.service}` : ""}`,
     html,

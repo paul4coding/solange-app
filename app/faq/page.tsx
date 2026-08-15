@@ -2,10 +2,15 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Plus, Minus, Phone, MessageCircle, Mail, MapPin, Check, ArrowRight } from "lucide-react";
 import { FAQS, BUSINESS } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 
 export const metadata: Metadata = { title: "FAQ" };
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  // Coordonnées modifiables depuis l'admin ; BUSINESS ne sert plus qu'aux
+  // valeurs fixes (années d'expérience).
+  const contact = await getBusiness();
+
   return (
     <>
       {/* Hero */}
@@ -77,35 +82,35 @@ export default function FAQPage() {
               </h3>
               <p className="text-sm text-gray-500 mb-4">We're here to help! Reach out to us directly.</p>
               <div className="space-y-3">
-                <a href={`tel:${BUSINESS.phone1Raw}`}
+                <a href={`tel:${contact.phone1Raw}`}
                   className="flex items-center gap-3 text-sm text-gray-700 hover:text-[#8B1A1A] transition-colors">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(139,26,26,0.08)" }}>
                     <Phone size={14} style={{ color: "var(--color-primary)" }} />
                   </div>
                   <div className="text-left">
                     <p className="text-xs text-gray-400 uppercase tracking-wide">Call Us</p>
-                    <p className="font-semibold">{BUSINESS.phone1}</p>
-                    <p className="font-semibold">{BUSINESS.phone2}</p>
+                    <p className="font-semibold">{contact.phone1}</p>
+                    <p className="font-semibold">{contact.phone2}</p>
                   </div>
                 </a>
-                <a href={`https://wa.me/${BUSINESS.whatsapp}`}
+                <a href={`https://wa.me/${contact.whatsapp}`}
                   className="flex items-center gap-3 text-sm text-gray-700 hover:text-[#8B1A1A] transition-colors">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(139,26,26,0.08)" }}>
                     <MessageCircle size={14} style={{ color: "var(--color-primary)" }} />
                   </div>
                   <div className="text-left">
                     <p className="text-xs text-gray-400 uppercase tracking-wide">WhatsApp Us</p>
-                    <p className="font-semibold">{BUSINESS.phone1}</p>
+                    <p className="font-semibold">{contact.phone1}</p>
                   </div>
                 </a>
-                <a href={`mailto:${BUSINESS.email}`}
+                <a href={`mailto:${contact.email}`}
                   className="flex items-center gap-3 text-sm text-gray-700 hover:text-[#8B1A1A] transition-colors">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(139,26,26,0.08)" }}>
                     <Mail size={14} style={{ color: "var(--color-primary)" }} />
                   </div>
                   <div className="text-left">
                     <p className="text-xs text-gray-400 uppercase tracking-wide">Email Us</p>
-                    <p className="font-semibold text-xs break-all">{BUSINESS.email}</p>
+                    <p className="font-semibold text-xs break-all">{contact.email}</p>
                   </div>
                 </a>
                 <div className="flex items-center gap-3 text-sm text-gray-700">
@@ -114,7 +119,7 @@ export default function FAQPage() {
                   </div>
                   <div className="text-left">
                     <p className="text-xs text-gray-400 uppercase tracking-wide">Visit Us</p>
-                    <p className="text-xs">{BUSINESS.address}</p>
+                    <p className="text-xs">{contact.address}</p>
                   </div>
                 </div>
               </div>
@@ -157,8 +162,8 @@ export default function FAQPage() {
               style={{ backgroundColor: "var(--color-primary)" }}>
               BOOK APPOINTMENT NOW <ArrowRight size={15} />
             </Link>
-            <a href={`tel:${BUSINESS.phone1Raw}`} className="inline-flex items-center gap-1.5 font-bold text-sm" style={{ color: "var(--color-primary)" }}>
-              <Phone size={14} /> {BUSINESS.phone1}
+            <a href={`tel:${contact.phone1Raw}`} className="inline-flex items-center gap-1.5 font-bold text-sm" style={{ color: "var(--color-primary)" }}>
+              <Phone size={14} /> {contact.phone1}
             </a>
           </div>
         </div>

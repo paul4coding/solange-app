@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CalendarCheck, Camera } from "lucide-react";
 import { query } from "@/lib/db";
-import { BUSINESS } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +15,8 @@ export const metadata: Metadata = {
 type ImgRow = { id: number; cloudinary_url: string; alt_text: string };
 
 export default async function GalleryPage() {
+  const BUSINESS = await getBusiness();
+
   let imgs: ImgRow[] = [];
   try {
     imgs = await query<ImgRow>(

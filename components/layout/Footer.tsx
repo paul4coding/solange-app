@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, MapPin, Mail, Clock } from "lucide-react";
-import { BUSINESS } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 
-export default function Footer() {
+export default async function Footer() {
+  const BUSINESS = await getBusiness();
+
   return (
     <footer className="text-white" style={{ backgroundColor: "var(--color-primary)" }}>
       {/* Main footer */}

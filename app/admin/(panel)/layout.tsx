@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, ImagePlus, FolderOpen, LogOut, CalendarDays, Inbox, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, ImagePlus, FolderOpen, LogOut, CalendarDays, Inbox, ArrowLeft, Store } from "lucide-react";
 import { logoutAdmin } from "../login/actions";
 
 const NAV = [
@@ -8,6 +8,7 @@ const NAV = [
   { href: "/admin/messages", label: "Messages", icon: <Inbox size={16} /> },
   { href: "/admin/images", label: "Ajouter des photos", icon: <ImagePlus size={16} /> },
   { href: "/admin/catalog", label: "Galerie", icon: <FolderOpen size={16} /> },
+  { href: "/admin/settings", label: "Coordonnées", icon: <Store size={16} /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

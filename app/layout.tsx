@@ -42,3 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
+// Le bandeau du haut et le pied de page affichent les coordonnées du salon,
+// modifiables depuis l'admin. Sans rendu à la demande, toute page prégénérée
+// figerait ces informations au moment du build.
+export const dynamic = "force-dynamic";

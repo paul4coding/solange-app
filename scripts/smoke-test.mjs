@@ -147,13 +147,13 @@ async function main() {
 
   // ── 3. Protection de l'espace admin ─────────────────────────────────
   section("3. Protection de l'espace admin");
-  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog", "/admin/images"]) {
+  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog", "/admin/images", "/admin/settings"]) {
     const s = await status(p);
     check(`${p} sans session → redirection`, s === 307 || s === 302, `reçu ${s}`);
   }
   check("/admin/login accessible", (await status("/admin/login")) === 200);
 
-  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog", "/admin/images"]) {
+  for (const p of ["/admin", "/admin/bookings", "/admin/messages", "/admin/catalog", "/admin/images", "/admin/settings"]) {
     const s = await status(p, { headers: auth });
     check(`${p} avec session → 200`, s === 200, `reçu ${s}`);
   }
@@ -168,6 +168,38 @@ async function main() {
   const adminNav = (await body("/admin", { headers: auth })).text;
   check("La navigation admin ne mentionne plus les services", !adminNav.includes(">Services<"));
   check("Le dashboard n'affiche plus de tableau de prestations", !adminNav.includes("Tous les services"));
+
+  // ── 3b. Coordonnées modifiables depuis l'admin ──────────────────────
+  section("3b. Coordonnées — modifiables depuis l'admin");
+  {
+    const db2 = await dbConn();
+    const [before] = await db2.query("SELECT `value` FROM settings WHERE `key` = 'phone1'");
+    const original = before[0]?.value ?? null;
+
+    const TEST_PHONE = "555.000.9999";
+    await db2.query(
+      "INSERT INTO settings (`key`,`value`) VALUES ('phone1',?) ON DUPLICATE KEY UPDATE `value`=VALUES(`value`)",
+      [TEST_PHONE]
+    );
+
+    // Le numéro doit apparaître sur les pages qui l'affichent.
+    for (const p of ["/", "/contact", "/faq"]) {
+      const page = await body(p);
+      check(`${p} reprend le numéro modifié`, page.text.includes(TEST_PHONE),
+        "l'ancien numéro est encore servi");
+    }
+    // Le lien « appeler » doit être dérivé automatiquement.
+    const home = await body("/");
+    check("Le lien tel: est dérivé du numéro", home.text.includes("tel:5550009999"));
+
+    // Remise en état
+    if (original === null) await db2.query("DELETE FROM settings WHERE `key` = 'phone1'");
+    else await db2.query("UPDATE settings SET `value` = ? WHERE `key` = 'phone1'", [original]);
+    await db2.end();
+
+    const restored = await body("/");
+    check("Numéro d'origine rétabli", !restored.text.includes(TEST_PHONE));
+  }
 
   // ── 4. Authentification des routes API ──────────────────────────────
   section("4. Routes API — refus sans session");

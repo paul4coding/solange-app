@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { Phone, MapPin, Mail, Clock, MessageCircle, Car, CheckCircle2, Navigation, ArrowRight } from "lucide-react";
-import { BUSINESS } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 import { submitContactForm } from "./actions";
 
 export const metadata: Metadata = { title: "Contact" };
@@ -11,6 +11,7 @@ export default async function ContactPage({
   searchParams: Promise<{ sent?: string; error?: string }>;
 }) {
   const { sent, error } = await searchParams;
+  const BUSINESS = await getBusiness();
 
   return (
     <>

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { CalendarCheck, Phone } from "lucide-react";
-import { BUSINESS } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 
-export default function CTABanner() {
+export default async function CTABanner() {
+  const BUSINESS = await getBusiness();
+
   return (
     <section className="py-14 px-4 text-white" style={{ backgroundColor: "var(--color-primary)" }}>
       <div className="max-w-5xl mx-auto text-center">

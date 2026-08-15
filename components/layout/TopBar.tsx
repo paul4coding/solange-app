@@ -1,9 +1,12 @@
-"use client";
 import { Phone, MapPin } from "lucide-react";
-import { BUSINESS } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 import Link from "next/link";
 
-export default function TopBar() {
+// Composant serveur : les coordonnées viennent de la base, modifiables
+// depuis l'admin. Aucune interactivité ici, donc pas besoin de client.
+export default async function TopBar() {
+  const BUSINESS = await getBusiness();
+
   return (
     <div className="hidden sm:block w-full text-white text-xs py-2 px-4" style={{ backgroundColor: "var(--color-primary)" }}>
       <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">

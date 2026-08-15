@@ -91,6 +91,16 @@ CREATE TABLE IF NOT EXISTS `bookings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------
+--  Coordonnées et informations affichées sur le site, modifiables
+--  depuis l'espace admin. Une ligne par champ ; les valeurs absentes
+--  retombent sur les valeurs par défaut du code (lib/constants.ts).
+CREATE TABLE IF NOT EXISTS `settings` (
+  `key`        VARCHAR(64)  NOT NULL PRIMARY KEY,
+  `value`      TEXT,
+  `updated_at` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `contact_messages` (
   `id`         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `name`       VARCHAR(200) NOT NULL,

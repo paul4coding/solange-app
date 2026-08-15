@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
-import { BUSINESS } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 
 export const metadata: Metadata = { title: "Appointment Confirmed" };
 
@@ -17,6 +17,7 @@ export default async function ConfirmationPage({
   searchParams: Promise<{ name?: string; service?: string; date?: string; time?: string }>;
 }) {
   const { name, service, date, time } = await searchParams;
+  const BUSINESS = await getBusiness();
 
   const waText = encodeURIComponent(
     `Hello! I just booked online.\nService: ${service}\nDate: ${fmt(date || "")} at ${time}\nName: ${name}`

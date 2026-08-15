@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { BUSINESS, TEAM } from "@/lib/constants";
+import { getBusiness } from "@/lib/settings";
 import { submitBooking } from "./actions";
 
 export const metadata: Metadata = { title: "Book an Appointment" };
@@ -19,6 +20,8 @@ export default async function BookingPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
+  // Coordonnées modifiables depuis l'admin ; BUSINESS garde le montant de l'acompte.
+  const contact = await getBusiness();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FDF8F3" }}>
@@ -133,9 +136,9 @@ export default async function BookingPage({
 
         <p className="text-center text-xs text-gray-400 mt-6">
           Questions? Call us at{" "}
-          <a href={`tel:${BUSINESS.phone1Raw}`} className="font-semibold text-gray-600">{BUSINESS.phone1}</a>
+          <a href={`tel:${contact.phone1Raw}`} className="font-semibold text-gray-600">{contact.phone1}</a>
           {" "}or{" "}
-          <a href={`tel:${BUSINESS.phone2Raw}`} className="font-semibold text-gray-600">{BUSINESS.phone2}</a>
+          <a href={`tel:${contact.phone2Raw}`} className="font-semibold text-gray-600">{contact.phone2}</a>
         </p>
       </div>
     </div>
