@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LayoutDashboard, ImagePlus, FolderOpen, LogOut, CalendarDays, Inbox, ArrowLeft } from "lucide-react";
-import { logoutAdmin } from "./login/actions";
+import { logoutAdmin } from "../login/actions";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={16} /> },

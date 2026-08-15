@@ -59,6 +59,23 @@ Deux options :
 `COOKIE_SECURE=false` fait circuler le jeton de session en clair : à réserver
 à un réseau de confiance, le temps de mettre en place un certificat.
 
+### Base de données déjà existante
+
+Sur une **installation neuve**, il n'y a rien à faire : `mysql-schema.sql` est
+à jour.
+
+Si une base a été créée avec une version antérieure, la réservation est passée
+d'une liste de prestations à un champ libre. Il faut donc adapter la table :
+
+```sql
+ALTER TABLE bookings
+  MODIFY service_slug VARCHAR(100) NULL,
+  MODIFY service_name TEXT NOT NULL;
+```
+
+Sans cela, l'enregistrement d'une réservation échoue avec une erreur 500
+(la colonne `service_slug` n'est plus renseignée).
+
 ---
 
 ## Déploiement B — installation classique, 4 étapes
